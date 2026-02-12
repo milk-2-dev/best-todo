@@ -2,9 +2,21 @@
 
 > A modern todo application with recursive subtasks, built with Remix and Appwrite
 
+## Dev updates
+
+- appwrite ui gives an error every time, just use CLI
+- "The punycode module is deprecated. Please use a userland alternative instead. (Use node --trace-deprecation ... to show where the warning was created)" As fast fix just downgrade Node.js
+  ```bash
+  nvm install 20.5.1
+  nvm use 20.5.1
+  ```
+- ""/.well-known/appspecific/com.chrome.devtools.json"' request" here is a solution to resolve that [solution](https://stackoverflow.com/questions/79629915/well-known-appspecific-com-chrome-devtools-json-request)
+
+
 ## 🚀 Features
 
 ### Core Features (Required)
+
 - 🚧 User authentication (signup/login) with Appwrite
 - 🚧 Recursive todo lists with unlimited nested subtasks
 - 🚧 CRUD operations for tasks
@@ -14,6 +26,7 @@
 - 🚧 UI tests with Vitest/Playwright
 
 ### Additional Features (Extended)
+
 - 🚧 **4 Category Pages**: Backlog, Today, Upcoming, Completed
 - 🚧 **Dual View Modes**: List view and Kanban Board view
 - 🚧 **Drag & Drop**: Intuitive task management with @dnd-kit
@@ -28,35 +41,42 @@
 ## 📋 Development Progress
 
 ### 🚧 Phase 1: Infrastructure & Setup (2/3) - IN PROGRESS
+
 - [✅] **Task 1**: Project Setup & Configuration
+
   - ✅ Remix + TypeScript initialized
   - ✅ Dependencies configured (@dnd-kit, date-fns, lucide-react)
   - ✅ Environment variables template
   - ✅ Folder structure created
 
 - [✅] **Task 2**: Appwrite Backend Configuration
+
   - ✅ Appwrite SDK integrated
   - ✅ Server & client configurations
   - ✅ Database schema planned
   - ✅ Database collections setup (manual step required)
 
-- [x] **Task 3**: Basic Layout & Navigation
-  - ⏳ Root layout with CSS
-  - ⏳ Routes defined
-  - ⏳ Sidebar navigation component (next)
+- [✅] **Task 3**: Basic Layout & Navigation
+  - ✅ Root layout with CSS
+  - ✅ Routes defined
+  - ✅ Sidebar navigation component (next)
 
 ### 🚧 Phase 2: Authentication (0/4)
+
 - [x] **Task 4**: Signup & Login Forms UI
+
   - ⏳ Signup page with form
   - ⏳ Login page with form
   - ⏳ TailwindCSS styling
 
 - [x] **Task 5**: Authentication Server Actions
+
   - ⏳ Signup action with Appwrite
   - ⏳ Login action with session creation
   - ⏳ Auto-redirect after auth
 
 - [x] **Task 6**: Form Validation
+
   - ⏳ Client-side validation
   - ⏳ Server-side validation
   - ⏳ Error display
@@ -67,7 +87,9 @@
   - ⏳ Logout functionality
 
 ### ⏳ Phase 3: Data Models & Types (0/2)
+
 - [x] **Task 8**: TypeScript Types & Interfaces
+
   - ⏳ Todo, Priority, Status types
   - ⏳ User interface
   - ⏳ Input/Update types
@@ -79,7 +101,9 @@
   - ⏳ Utility functions (date, status, progress)
 
 ### ⏳ Phase 4: Create Tasks (0/2)
+
 - [ ] **Task 10**: Create Todo Form/Modal
+
   - ⏳ Modal component
   - ⏳ Form fields (title, description, dueDate, priority)
   - ⏳ Date picker integration
@@ -90,12 +114,15 @@
   - ⏳ Optimistic UI updates
 
 ### ⏳ Phase 5: List View (0/3)
+
 - [ ] **Task 12**: Todo List Component
+
   - ⏳ List display component
   - ⏳ Priority & date badges
   - ⏳ Checkbox for completion
 
 - [ ] **Task 13**: List View - Data Loading
+
   - ⏳ Loader functions per route
   - ⏳ Status-based filtering
   - ⏳ Loading states
@@ -106,7 +133,9 @@
   - ⏳ UI updates
 
 ### ⏳ Phase 6: Board View (0/2)
+
 - [ ] **Task 15**: Board View Component
+
   - ⏳ Kanban board layout
   - ⏳ 4 columns (Backlog, Today, Upcoming, Completed)
   - ⏳ Task cards
@@ -117,7 +146,9 @@
   - ⏳ Conditional rendering
 
 ### ⏳ Phase 7: Drag & Drop (0/2)
+
 - [ ] **Task 17**: Drag & Drop Setup
+
   - ⏳ @dnd-kit configuration
   - ⏳ Draggable components
   - ⏳ Drop zones
@@ -128,12 +159,15 @@
   - ⏳ Visual feedback
 
 ### ⏳ Phase 8: Task Details Modal (0/3)
+
 - [ ] **Task 19**: Todo Details Modal - UI
+
   - ⏳ Modal component
   - ⏳ Full task info display
   - ⏳ Subtasks list
 
 - [ ] **Task 20**: Todo Details Modal - Edit
+
   - ⏳ Inline editing
   - ⏳ Save changes
   - ⏳ Modal controls
@@ -144,24 +178,28 @@
   - ⏳ CRUD for subtasks
 
 ### ⏳ Phase 9: Smart Categorization (0/1)
+
 - [ ] **Task 22**: Smart Status Assignment
   - ⏳ Auto-categorization logic
   - ⏳ Daily status updates
   - ⏳ Overdue detection
 
 ### ⏳ Phase 10: Progress Tracking (0/1)
+
 - [ ] **Task 23**: Subtask Progress Calculation
   - ⏳ Recursive calculation
   - ⏳ Progress bars
   - ⏳ Visual indicators
 
 ### ⏳ Phase 11: Appwrite Function (0/1)
+
 - [ ] **Task 24**: Welcome Email Function
   - ⏳ Appwrite Function creation
   - ⏳ Email service integration
   - ⏳ Trigger setup
 
 ### ⏳ Phase 12: Testing (0/1)
+
 - [ ] **Task 25**: UI & Integration Tests
   - ⏳ Vitest setup
   - ⏳ Playwright setup
@@ -169,7 +207,9 @@
   - ⏳ E2E tests
 
 ### ⏳ Phase 13: DevOps & Deployment (0/2)
+
 - [ ] **Task 26**: CI/CD Pipeline Setup
+
   - ⏳ GitHub Actions workflow
   - ⏳ Pipeline documentation
   - ⏳ Environment variables
@@ -180,7 +220,9 @@
   - ⏳ Final deployment
 
 ### ⏳ Phase 14: Polish (0/2)
+
 - [ ] **Task 28**: UI/UX Polish
+
   - ⏳ Animations
   - ⏳ Loading states
   - ⏳ Empty states
@@ -218,20 +260,24 @@
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <your-repo-url>
    cd recursive-todo-app
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up Appwrite**
+
    - Create a new project in Appwrite Console
    - Create a database
    - Create a collection named "todos" with the following attributes:
+
      - `title` (string, required)
      - `description` (string, optional)
      - `dueDate` (string, optional)
@@ -242,18 +288,20 @@
      - `createdAt` (string, required)
      - `completedAt` (string, optional)
      - `order` (integer, required)
-   
+
    - Set up indexes:
      - `userId` (ascending)
      - `status` (ascending)
      - `parentId` (ascending)
 
 4. **Configure environment variables**
+
    ```bash
    cp .env.example .env
    ```
-   
+
    Fill in your Appwrite credentials:
+
    ```env
    APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
    APPWRITE_PROJECT_ID=<your-project-id>
@@ -264,6 +312,7 @@
    ```
 
 5. **Run the development server**
+
    ```bash
    npm run dev
    ```
@@ -326,27 +375,32 @@ npm run test:ui
 The CI/CD pipeline will automate the following stages:
 
 1. **Install Dependencies**
+
    ```bash
    npm ci
    ```
 
 2. **Lint Code**
+
    ```bash
    npm run lint
    ```
 
 3. **Type Check**
+
    ```bash
    npm run typecheck
    ```
 
 4. **Run Tests**
+
    ```bash
    npm run test
    npm run test:ui
    ```
 
 5. **Build Application**
+
    ```bash
    npm run build
    ```
@@ -359,6 +413,7 @@ The CI/CD pipeline will automate the following stages:
 **Tools**: GitHub Actions
 
 Example workflow file (`.github/workflows/deploy.yml`):
+
 ```yaml
 name: Deploy
 
@@ -397,6 +452,7 @@ Detailed explanation if needed
 ```
 
 Examples:
+
 - `[Task-1] Initialize Remix project with TypeScript`
 - `[Task-4] Create signup form with validation`
 - `[Task-17] Implement drag and drop with dnd-kit`

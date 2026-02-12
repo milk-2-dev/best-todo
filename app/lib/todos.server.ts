@@ -4,7 +4,7 @@ import {
   TODOS_COLLECTION_ID,
   tablesDB,
 } from "./appwrite.server";
-import { Query, ID } from "appwrite";
+import { Query, ID } from "node-appwrite";
 import type {
   Todo,
   CreateTodoInput,
@@ -41,22 +41,23 @@ export async function getUserTodos(userId: string): Promise<Response> {
 export async function getTodosByStatus(
   userId: string,
   status: Status
-): Promise<Todo[]> {
+): Promise<Response> {
+
+  console.error(`Fetching ${status} todos for user ${userId}...`); // Debug log
   try {
-    const response = await databases.listDocuments(
-      DATABASE_ID,
-      TODOS_COLLECTION_ID,
-      [
+    const response = await tablesDB.listRows({
+      ...todosTableCredentials,
+      queries: [
         Query.equal("userId", userId),
         Query.equal("status", status),
         Query.orderAsc("order"),
-      ]
-    );
+      ],
+    });
 
-    return response.documents as unknown as Todo[];
+    return response as unknown as Response;
   } catch (error) {
     console.error(`Error fetching ${status} todos:`, error);
-    return [];
+    throw error;
   }
 }
 

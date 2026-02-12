@@ -1,7 +1,12 @@
 import { redirect } from "@remix-run/node";
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import { account } from "~/lib/appwrite.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  // Redirect to login page by default
-  return redirect("/login");
+  try {
+    // await account.get();
+    return redirect("/backlog");
+  } catch (error) {
+    return redirect("/login");
+  }
 }
