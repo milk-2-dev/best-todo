@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { Outlet } from "react-router";
 import { Plus } from "lucide-react";
 
 import { useNavItems } from "~/hooks/useNavItems";
 import { useViewMode } from "~/hooks/useViewMode";
 
-import Sidebar from "./todos/Sidebar";
-import ViewToggle from "./todos/ViewToggle";
+import Sidebar from "~/components/todos/Sidebar";
+import ViewToggle from "~/components/todos/ViewToggle";
 import { Button } from "~/components/ui/button";
 
 interface LayoutProps {
@@ -20,10 +21,6 @@ export default function Layout({ children }: LayoutProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  setTimeout(() => {
-    handleCreateTask()
-  }, 3000);
 
   const handleCreateTask = () => {
   
@@ -102,7 +99,7 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </header>
 
-        {/* {children} */}
+        <Outlet />
 
         {/* Content */}
         {/* <div className="flex-1 overflow-auto p-4 lg:p-8">

@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { useNavItems } from "~/hooks/useNavItems";
 import { Plus, Sparkles } from "lucide-react";
 import { cn } from "~/lib/utils";

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "@remix-run/react";
+import { useLocation } from "react-router";
 import type { ViewMode } from "~/types/todo";
 
 export function useViewMode(defaultMode: ViewMode = "list"): [ViewMode, (mode: ViewMode) => void] {
