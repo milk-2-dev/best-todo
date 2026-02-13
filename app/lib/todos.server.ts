@@ -42,7 +42,6 @@ export async function getTodosByStatus(
   userId: string,
   status: Status
 ): Promise<Response> {
-
   console.error(`Fetching ${status} todos for user ${userId}...`); // Debug log
   try {
     const response = await tablesDB.listRows({
@@ -83,55 +82,68 @@ export async function createTodo(
   const status = input.dueDate ? determineStatus(input.dueDate) : "backlog";
 
   const todos = await getUserTodos(userId);
-  const maxOrder = todos.reduce((max, todo) => Math.max(max, todo.order), 0);
+  const maxOrder = todos.rows.reduce(
+    (max, todo) => Math.max(max, todo.order),
+    0
+  );
 
   const todoData = {
     title: input.title,
-    description: input.description || "",
-    dueDate: input.dueDate || null,
+    description: input.description,
+    dueDate: input.dueDate,
     priority: input.priority,
     status,
-    parentId: input.parentId || null,
+    parentId: input.parentId,
     userId,
-    createdAt: new Date().toISOString(),
-    completedAt: null,
     order: maxOrder + 1,
   };
 
-  const response = await databases.createDocument(
-    DATABASE_ID,
-    TODOS_COLLECTION_ID,
-    ID.unique(),
-    todoData
-  );
+  try {
+    const response = await tablesDB.createRow({
+      ...todosTableCredentials,
+      rowId: ID.unique(),
+      data: todoData,
+    });
 
-  return response as unknown as Todo;
+    console.log("Created todo:", response);
+
+
+    return {
+      $id: "new-id",
+      ...todoData,
+      createdAt: new Date().toISOString(),
+    } as unknown as Todo;
+
+  } catch (error) {
+    console.log("Appwrite", "Error: " + error);
+  }
 }
 
 export async function updateTodo(
   todoId: string,
   updates: UpdateTodoInput
 ): Promise<Todo> {
-  const updateData: Record<string, any> = {};
+  const { description, dueDate, order, priority, status, title } = updates;
 
-  if (updates.title !== undefined) updateData.title = updates.title;
-  if (updates.description !== undefined)
-    updateData.description = updates.description;
-  if (updates.dueDate !== undefined) updateData.dueDate = updates.dueDate;
-  if (updates.priority !== undefined) updateData.priority = updates.priority;
-  if (updates.status !== undefined) updateData.status = updates.status;
-  if (updates.order !== undefined) updateData.order = updates.order;
-  if (updates.completedAt !== undefined)
-    updateData.completedAt = updates.completedAt;
+  try {
+    const response = await tablesDB.updateRow({
+      ...todosTableCredentials,
+      rowId: todoId,
+      data: {
+        description,
+        dueDate,
+        order,
+        priority,
+        status,
+        title,
+      },
+    });
 
-  const response = await databases.updateDocument(
-    DATABASE_ID,
-    TODOS_COLLECTION_ID,
-    todoId,
-    updateData
-  );
-
-  return response as unknown as Todo;
+    return response as unknown as Todo;
+  } catch (error) {
+    console.log("Appwrite", "Error: " + error);
+    throw error;
+  }
 }
 
 export async function deleteTodo(todoId: string): Promise<void> {
@@ -140,7 +152,15 @@ export async function deleteTodo(todoId: string): Promise<void> {
     await deleteTodo(subtask.$id);
   }
 
-  await databases.deleteDocument(DATABASE_ID, TODOS_COLLECTION_ID, todoId);
+  try {
+    const response = await tablesDB.deleteRow({
+      ...todosTableCredentials,
+      rowId: todoId,
+    });
+  } catch (error) {
+    console.log("Appwrite", "Error: " + error);
+    throw error;
+  }
 }
 
 /**

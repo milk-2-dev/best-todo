@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Outlet } from "react-router";
 import { Plus } from "lucide-react";
 
+import { useViewMode } from "~/contexts/ViewModeContext";
+
 import { useNavItems } from "~/hooks/useNavItems";
-import { useViewMode } from "~/hooks/useViewMode";
 
 import Sidebar from "~/components/todos/Sidebar";
 import ViewToggle from "~/components/todos/ViewToggle";
@@ -15,7 +16,7 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const { activeNavItem } = useNavItems();
-  const [viewMode, setViewMode] = useViewMode();
+  const {viewMode, setViewMode} = useViewMode();
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -23,7 +24,6 @@ export default function Layout({ children }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleCreateTask = () => {
-  
     console.log("Create Task Action");
   };
 
@@ -69,10 +69,10 @@ export default function Layout({ children }: LayoutProps) {
 
             <div className="flex items-center gap-3">
               <ViewToggle view={viewMode} onViewChange={setViewMode} />
-              <Button
+              {/* <Button
                 onClick={handleCreateTask}
                 size="sm"
-                className="bg-slate-900 hover:bg-slate-800 hidden sm:flex"
+                className="bg-slate-900 hover:bg-slate-800 text-white hidden sm:flex"
               >
                 <Plus className="w-4 h-4 mr-1.5" />
                 Add Task
@@ -80,10 +80,10 @@ export default function Layout({ children }: LayoutProps) {
               <Button
                 onClick={handleCreateTask}
                 size="icon"
-                className="bg-slate-900 hover:bg-slate-800 sm:hidden"
+                className="bg-slate-900 hover:bg-slate-800 text-white sm:hidden"
               >
                 <Plus className="w-4 h-4" />
-              </Button>
+              </Button> */}
 
               {/* Logout */}
               {/* <Form method="post" action="/logout">
@@ -99,32 +99,8 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </header>
 
-        <Outlet />
-
-        {/* Content */}
-        {/* <div className="flex-1 overflow-auto p-4 lg:p-8">
-          {displayMode === 'list' ? (
-            <TaskList
-              tasks={filteredTasks}
-              isLoading={isLoading}
-              onToggleComplete={handleToggleComplete}
-              onEdit={handleEditTask}
-              onDelete={handleDeleteTask}
-              onStatusChange={handleStatusChange}
-              onCreateTask={handleCreateTask}
-              activeView={activeView}
-            />
-          ) : (
-            <KanbanBoard
-              tasks={tasks}
-              isLoading={isLoading}
-              onToggleComplete={handleToggleComplete}
-              onEdit={handleEditTask}
-              onDelete={handleDeleteTask}
-              onStatusChange={handleStatusChange}
-            />
-          )}
-        </div> */}
+          {/* Content */}
+          <Outlet />
       </main>
 
       {/* Task Modal */}

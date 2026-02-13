@@ -1,42 +1,53 @@
+import TodoList from "~/components/todos/TodoList";
+import KanbanBoard from "~/components/todos/KanbanBoard";
+import { useViewMode } from "~/hooks/useViewMode";
+
 export function BacklogTodos({ todos, user }) {
+  const [viewMode] = useViewMode();
+
   console.log("Loaded todos in Component:", todos);
 
-  return (
-    <div className="max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">📥 Backlog</h1>
-        <p className="text-gray-600">Tasks without specific due dates</p>
-      </div>
+  const isLoading = false;
+  const handleToggleComplete = () => {
+    console.log("Toggle Complete Action");
+  };
+  const handleEditTask = () => {
+    console.log("Edit Task Action");
+  };
+  const handleDeleteTask = () => {
+    console.log("Delete Task Action");
+  
+  };
+  const handleStatusChange = () => {
+    console.log("Status Change Action");
+  };
+  const handleCreateTask = () => {
+    console.log("Create Task Action");
+  };
 
-      {/* <div className="card p-6">
-          {todos.rows.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">📝</div>
-              <h3 className="text-sm font-medium text-gray-900 mb-1">
-                No tasks in backlog
-              </h3>
-              <p className="text-sm text-gray-500">
-                Create your first task to get started
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {todos.rows.map((todo) => (
-                <div
-                  key={todo.$id}
-                  className="p-4 border border-gray-200 rounded-lg"
-                >
-                  <h4 className="font-medium">{todo.title}</h4>
-                  {todo.description && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      {todo.description}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div> */}
+  return (
+    <div className="flex-1 overflow-auto p-4 lg:p-8">
+      {viewMode === "list" ? (
+        <TodoList
+          tasks={todos.rows}
+          isLoading={isLoading}
+          onToggleComplete={handleToggleComplete}
+          onEdit={handleEditTask}
+          onDelete={handleDeleteTask}
+          onStatusChange={handleStatusChange}
+          onCreateTask={handleCreateTask}
+          activeView={viewMode}
+        />
+      ) : (
+        <KanbanBoard
+          tasks={todos.rows}
+          isLoading={isLoading}
+          onToggleComplete={handleToggleComplete}
+          onEdit={handleEditTask}
+          onDelete={handleDeleteTask}
+          onStatusChange={handleStatusChange}
+        />
+      )}
     </div>
   );
 }
