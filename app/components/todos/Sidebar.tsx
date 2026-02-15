@@ -1,11 +1,10 @@
-import { Link } from "react-router";
+import { Link, Form } from "react-router";
 import { useNavItems } from "~/hooks/useNavItems";
 import { Plus, Sparkles } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 
-
-export default function Sidebar({ onCreateTask }) {
+export default function Sidebar() {
   const { navItems, activeNavItem } = useNavItems();
 
   return (
@@ -69,13 +68,15 @@ export default function Sidebar({ onCreateTask }) {
 
       {/* Create Button */}
       <div className="p-4 border-t border-slate-200/60">
-        <Button
-          onClick={onCreateTask}
-          className="w-full bg-slate-900 hover:bg-slate-800 text-white shadow-sm"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          New Task
-        </Button>
+        <Form method="post" action="/logout">
+          <Button
+            type="submit"
+            variant="ghost"
+            className="w-full"
+          >
+            Logout
+          </Button>
+        </Form>
       </div>
     </aside>
   );

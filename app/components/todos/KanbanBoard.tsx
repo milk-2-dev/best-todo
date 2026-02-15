@@ -53,7 +53,7 @@ export default function KanbanBoard({ tasks, isLoading, onToggleComplete, onEdit
             <div className="space-y-3">
               {columnTasks.map((task) => (
                 <TodoCard
-                  key={task.id}
+                  key={task.$id}
                   task={task}
                   onToggleComplete={onToggleComplete}
                   onEdit={onEdit}
