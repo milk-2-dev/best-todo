@@ -4,6 +4,8 @@ import { format } from "date-fns";
 
 import { cn } from "~/lib/utils";
 
+import { useNavItems } from "~/hooks/useNavItems";
+
 import type { Todo } from "~/types/todo";
 
 import { Calendar as CalendarIcon, Flag, Loader2, Trash2 } from "lucide-react";
@@ -31,6 +33,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import { de } from "zod/v4/locales";
 
 interface Props {
   isOpen: boolean;
@@ -42,15 +45,17 @@ const defaultTask = {
   intent: "create",
   title: "",
   description: "",
-  status: "backlog",
+  status: "",
   priority: "medium",
   dueDate: "",
 };
 
 export default function TaskModal({ isOpen, onClose, todo }: Props) {
   const [formData, setFormData] = useState(defaultTask);
-  const fetcher = useFetcher({key: "todo-form"});
+  const fetcher = useFetcher({ key: "todo-form" });
   const isEditing = !!todo?.$id;
+
+  const { activeNavItem } = useNavItems();
 
   useEffect(() => {
     if (todo) {
@@ -60,17 +65,20 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
         dueDate: todo.dueDate || "",
       });
     } else {
-      setFormData(defaultTask);
+      setFormData({
+        ...defaultTask,
+        status: activeNavItem?.id || "backlog",
+      });
     }
   }, [todo, isOpen]);
 
   useEffect(() => {
-    if ((fetcher.state === "loading") && fetcher.data) {
-      if(fetcher.data.success) {
+    if (fetcher.state === "loading" && fetcher.data) {
+      if (fetcher.data.success) {
         onClose();
         setFormData(defaultTask);
         console.log("Success:", fetcher.data.message);
-      } else{
+      } else {
         console.error("Error:", fetcher.data.error);
         // TODO: Show error message to user
       }

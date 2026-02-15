@@ -1,5 +1,5 @@
-import { redirect } from "react-router";
-import type { Route } from "./+types/_index";
+import { Outlet, redirect } from "react-router";
+import type { Route } from "./+types/_auth";
 import { getUserFromSession } from "~/utils/session.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -8,6 +8,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (user) {
     return redirect("/backlog");
   }
+  
+  return null;
+}
 
-  return redirect("/login");
+export default function AuthLayout() {
+  return <Outlet />;
 }

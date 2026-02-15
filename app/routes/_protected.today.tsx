@@ -1,15 +1,8 @@
-import { data, useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { type LoaderFunctionArgs } from "react-router";
 
-import type { Route } from "./+types/backlog";
-import TodoPage from "../components/todos/TodoPage";
+import type { Route } from "./+types/_protected.today";
+
 import type { Todo } from "~/types/todo";
-
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
-  ];
-}
 
 import {
   getTodosByStatus,
@@ -17,12 +10,22 @@ import {
   updateTodo,
   deleteTodo,
 } from "~/lib/todos.server";
-// import { account } from "~/lib/appwrite.server";
+
+import { requireUser } from "~/utils/session.server";
+
+import TodoPage from "../components/todos/TodoPage";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "Best todo | today" },
+    { name: "description", content: "All yours todos for today" },
+  ];
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    const user = { $id: "698ce6aa002f3eeb8a61" }; //await account.get();
-    const todos = await getTodosByStatus(user.$id, "backlog");
+    const user = await requireUser(request);
+    const todos = await getTodosByStatus(user.$id, "today");
 
     return Response.json({ todos, user });
   } catch (error) {
@@ -30,22 +33,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 }
 
-type ActionData = {
-  success: boolean;
-  todo?: Todo;
-  error?: string;
-};
-
 export async function action({ request }: Route.ActionArgs): Promise<Response> {
+  const user = await requireUser(request);
   const data = await request.json();
   const { intent, todoId, ...todoData } = data;
-
-  console.log("Action received:", { intent, todoId, todoData });
 
   try {
     switch (intent) {
       case "create": {
-        const newTodo = await createTodo("698ce6aa002f3eeb8a61", data);
+        const newTodo = await createTodo(user.$id, data);
 
         return Response.json({
           success: true,
@@ -101,21 +97,6 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
           { status: 400 }
         );
     }
-
-    // if (intent === "create") {
-    //   const response = await createTodo("698ce6aa002f3eeb8a61", data);
-    // }
-
-    // if (intent === "update") {
-    //   const response = await updateTodo(data.$id, data);
-    // }
-
-    // if (intent === "delete") {
-    //   console.log("Delete Task Action");
-    //   const response = await deleteTodo(data.todoId);
-
-    //   // await databases.deleteDocument(DB_ID, TASKS_COLLECTION_ID, formData.get('id') as string);
-    // }
   } catch (error) {
     console.error("Todo action error:", error);
     return Response.json(
@@ -129,7 +110,7 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
 }
 
 export default function Backlog({ loaderData }: Route.ComponentProps) {
-  const { todos, user } = loaderData;
+  const { todos } = loaderData;
 
   return <TodoPage todos={todos} />;
 }

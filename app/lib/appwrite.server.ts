@@ -1,4 +1,11 @@
-import { Client, Account, Databases, Functions, TablesDB } from "node-appwrite";
+import {
+  Client,
+  Account,
+  Databases,
+  Functions,
+  TablesDB,
+  ID,
+} from "node-appwrite";
 
 const client = new Client()
   .setEndpoint(process.env.APPWRITE_ENDPOINT || "https://cloud.appwrite.io/v1")
@@ -12,11 +19,26 @@ if (process.env.APPWRITE_API_KEY) {
 export const account = new Account(client);
 export const databases = new Databases(client);
 export const functions = new Functions(client);
-
 export const tablesDB = new TablesDB(client);
+
 
 export const DATABASE_ID = process.env.APPWRITE_DATABASE_ID || "";
 export const TODOS_COLLECTION_ID =
   process.env.APPWRITE_TODOS_COLLECTION_ID || "";
 
-export { client };
+export function createSessionClient(sessionToken: string) {
+  const sessionClient = new Client()
+    .setEndpoint(
+      process.env.APPWRITE_ENDPOINT || "https://cloud.appwrite.io/v1"
+    )
+    .setProject(process.env.APPWRITE_PROJECT_ID || "");
+
+  sessionClient.setSession(sessionToken);
+
+  return {
+    account: new Account(sessionClient),
+    databases: new Databases(sessionClient),
+  };
+}
+
+export { client, ID };

@@ -38,9 +38,6 @@ export default function TodoPage({ todos }: Props) {
   };
 
   const handleCreate = () => {
-    console.log("Create Task Action");
-    console.log(modalOpen);
-    console.log(editingTodo);
     setEditingTodo(null);
     setModalOpen(true);
   };

@@ -63,23 +63,23 @@
 
 ### 🚧 Phase 2: Authentication (0/4)
 
-- [x] **Task 4**: Signup & Login Forms UI
+- [✅] **Task 4**: Signup & Login Forms UI
 
-  - ⏳ Signup page with form
-  - ⏳ Login page with form
-  - ⏳ TailwindCSS styling
+  - ✅ Signup page with form
+  - ✅ Login page with form
+  - ✅ TailwindCSS styling
 
-- [x] **Task 5**: Authentication Server Actions
+- [✅] **Task 5**: Authentication Server Actions
 
-  - ⏳ Signup action with Appwrite
-  - ⏳ Login action with session creation
-  - ⏳ Auto-redirect after auth
+  - ✅ Signup action with Appwrite
+  - ✅ Login action with session creation
+  - ✅ Auto-redirect after auth
 
-- [x] **Task 6**: Form Validation
+- [✅] **Task 6**: Form Validation
 
-  - ⏳ Client-side validation
-  - ⏳ Server-side validation
-  - ⏳ Error display
+  - ✅ Client-side validation
+  - ✅ Server-side validation
+  - ✅ Error display
 
 - [x] **Task 7**: Protected Routes & Session Management
   - ⏳ Session middleware
