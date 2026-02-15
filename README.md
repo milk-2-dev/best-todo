@@ -88,15 +88,15 @@
 
 ### ⏳ Phase 3: Data Models & Types (0/2) - IN PROGRESS
 
-- [x] **Task 8**: TypeScript Types & Interfaces
+- [✅] **Task 8**: TypeScript Types & Interfaces
 
-  - ⏳ Todo, Priority, Status types
+  - ✅ Todo, Priority, Status types
   - ✅ User interface
-  - ⏳ Input/Update types
+  - ✅ Input/Update types
 
-- [x] **Task 9**: Appwrite Service Layer
-  - ⏳ CRUD functions for todos
-  - ⏳ Subtask management
+- [✅] **Task 9**: Appwrite Service Layer
+  - ✅ CRUD functions for todos
+  - ✅ Subtask management
   - ✅ Status filtering
   - ✅ Utility functions (date, status, progress)
 
