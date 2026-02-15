@@ -163,9 +163,6 @@ export async function deleteTodo(todoId: string): Promise<void> {
   }
 }
 
-/**
- * Отмечает задачу как выполненную
- */
 export async function toggleTodoComplete(
   todoId: string,
   isCompleted: boolean
@@ -178,9 +175,6 @@ export async function toggleTodoComplete(
   return updateTodo(todoId, updates);
 }
 
-/**
- * Обновляет статус задачи (для drag & drop)
- */
 export async function updateTodoStatus(
   todoId: string,
   newStatus: Status
