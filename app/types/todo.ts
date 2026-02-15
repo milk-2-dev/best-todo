@@ -8,13 +8,13 @@ export interface Todo {
   $id: string;
   title: string;
   description: string;
-  dueDate?: string; // ISO string
+  dueDate?: string;
   priority: Priority;
   status: Status;
   parentId?: string | null;
   userId: string;
   createdAt: string;
-  order: number; // для сортировки
+  order: number;
   subtasks?: Todo[];
 }
 
