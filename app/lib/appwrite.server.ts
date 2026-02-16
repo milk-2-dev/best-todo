@@ -6,6 +6,11 @@ import {
   TablesDB,
   ID,
 } from "node-appwrite";
+import { config } from 'dotenv';
+
+if (typeof process !== 'undefined') {
+  config();
+}
 
 const client = new Client()
   .setEndpoint(process.env.APPWRITE_ENDPOINT || "https://cloud.appwrite.io/v1")
@@ -15,6 +20,8 @@ const client = new Client()
 if (process.env.APPWRITE_API_KEY) {
   client.setKey(process.env.APPWRITE_API_KEY);
 }
+
+console.log('Server side project ', process.env.APPWRITE_PROJECT_ID);
 
 export const account = new Account(client);
 export const databases = new Databases(client);
