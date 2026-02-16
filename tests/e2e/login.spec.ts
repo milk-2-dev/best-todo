@@ -38,7 +38,7 @@ test.describe('Login Page', () => {
   test('should show validation error for invalid email format', async ({ page }) => {
     // Enter invalid email
     await page.getByLabel('Email').fill('invalid-email')
-    await page.getByLabel('Password').fill('password123')
+    await page.getByLabel('Password').fill('Password123')
     await page.getByRole('button', { name: 'Sign in' }).click()
     
     // Wait for validation
@@ -51,7 +51,7 @@ test.describe('Login Page', () => {
   test('should show error for invalid credentials', async ({ page }) => {
     // Fill form with invalid credentials
     await page.getByLabel('Email').fill('wrong@example.com')
-    await page.getByLabel('Password').fill('wrongpassword')
+    await page.getByLabel('Password').fill('Wrongpassword123')
     await page.getByRole('button', { name: 'Sign in' }).click()
     
     // Wait for server response
@@ -64,7 +64,7 @@ test.describe('Login Page', () => {
   test('should successfully login with valid credentials', async ({ page }) => {
     // Note: You'll need to have a test user created in Appwrite
     const testEmail = process.env.TEST_USER_EMAIL || 'test@example.com'
-    const testPassword = process.env.TEST_USER_PASSWORD || 'testpassword123'
+    const testPassword = process.env.TEST_USER_PASSWORD || 'TestPassword123'
     
     // Fill login form
     await page.getByLabel('Email').fill(testEmail)
@@ -83,7 +83,7 @@ test.describe('Login Page', () => {
 
   test('should show loading state during submission', async ({ page }) => {
     const testEmail = process.env.TEST_USER_EMAIL || 'test@example.com'
-    const testPassword = process.env.TEST_USER_PASSWORD || 'testpassword123'
+    const testPassword = process.env.TEST_USER_PASSWORD || 'TestPassword123'
     
     await page.getByLabel('Email').fill(testEmail)
     await page.getByLabel('Password').fill(testPassword)
@@ -114,10 +114,10 @@ test.describe('Login Page', () => {
 
   test('should handle redirectTo query parameter', async ({ page }) => {
     const testEmail = process.env.TEST_USER_EMAIL || 'test@example.com'
-    const testPassword = process.env.TEST_USER_PASSWORD || 'testpassword123'
+    const testPassword = process.env.TEST_USER_PASSWORD || 'TestPassword123'
     
     // Navigate with redirectTo parameter
-    await page.goto('/login?redirectTo=/dashboard')
+    await page.goto('/login?redirectTo=/backlog')
     
     // Login
     await page.getByLabel('Email').fill(testEmail)
@@ -125,7 +125,7 @@ test.describe('Login Page', () => {
     await page.getByRole('button', { name: 'Sign in' }).click()
     
     // Should redirect to specified path
-    await expect(page).toHaveURL('/dashboard', { timeout: 5000 })
+    await expect(page).toHaveURL('/backlog', { timeout: 5000 })
   })
 
   test('should allow password visibility toggle if implemented', async ({ page }) => {

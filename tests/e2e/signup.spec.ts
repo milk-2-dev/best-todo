@@ -43,8 +43,8 @@ test.describe('Signup Page', () => {
   test('should show validation error for invalid email format', async ({ page }) => {
     await page.getByLabel('Full Name').fill('John Doe')
     await page.getByLabel('Email').fill('invalid-email')
-    await page.getByLabel('Password', { exact: true }).fill('password123')
-    await page.getByLabel('Confirm Password').fill('password123')
+    await page.getByLabel('Password', { exact: true }).fill('Password123')
+    await page.getByLabel('Confirm Password').fill('Password123')
     await page.getByLabel(/I agree to the/).check()
     
     await page.getByRole('button', { name: 'Create account' }).click()
@@ -56,7 +56,7 @@ test.describe('Signup Page', () => {
   test('should show error when passwords do not match', async ({ page }) => {
     await page.getByLabel('Full Name').fill('John Doe')
     await page.getByLabel('Email').fill('john@example.com')
-    await page.getByLabel('Password', { exact: true }).fill('password123')
+    await page.getByLabel('Password', { exact: true }).fill('Password123')
     await page.getByLabel('Confirm Password').fill('differentpassword')
     await page.getByLabel(/I agree to the/).check()
     
@@ -72,8 +72,8 @@ test.describe('Signup Page', () => {
   test('should require terms checkbox to be checked', async ({ page }) => {
     await page.getByLabel('Full Name').fill('John Doe')
     await page.getByLabel('Email').fill('john@example.com')
-    await page.getByLabel('Password', { exact: true }).fill('password123')
-    await page.getByLabel('Confirm Password').fill('password123')
+    await page.getByLabel('Password', { exact: true }).fill('Password123')
+    await page.getByLabel('Confirm Password').fill('Password123')
     
     // Don't check terms checkbox
     await page.getByRole('button', { name: 'Create account' }).click()
@@ -89,8 +89,8 @@ test.describe('Signup Page', () => {
     
     await page.getByLabel('Full Name').fill('John Doe')
     await page.getByLabel('Email').fill(existingEmail)
-    await page.getByLabel('Password', { exact: true }).fill('newpassword123')
-    await page.getByLabel('Confirm Password').fill('newpassword123')
+    await page.getByLabel('Password', { exact: true }).fill('NewPassword123')
+    await page.getByLabel('Confirm Password').fill('NewPassword123')
     await page.getByLabel(/I agree to the/).check()
     
     await page.getByRole('button', { name: 'Create account' }).click()
@@ -126,8 +126,8 @@ test.describe('Signup Page', () => {
     
     await page.getByLabel('Full Name').fill('Test User')
     await page.getByLabel('Email').fill(testEmail)
-    await page.getByLabel('Password', { exact: true }).fill('password123')
-    await page.getByLabel('Confirm Password').fill('password123')
+    await page.getByLabel('Password', { exact: true }).fill('Password123')
+    await page.getByLabel('Confirm Password').fill('Password123')
     await page.getByLabel(/I agree to the/).check()
     
     // Click submit
@@ -169,7 +169,7 @@ test.describe('Signup Page', () => {
     const testPassword = 'TestPassword123!'
     
     // Navigate with redirectTo parameter
-    await page.goto('/signup?redirectTo=/dashboard')
+    await page.goto('/signup?redirectTo=/backlog')
     
     // Fill and submit form
     await page.getByLabel('Full Name').fill('Test User')
@@ -180,7 +180,7 @@ test.describe('Signup Page', () => {
     await page.getByRole('button', { name: 'Create account' }).click()
     
     // Should redirect to specified path
-    await expect(page).toHaveURL('/dashboard', { timeout: 10000 })
+    await expect(page).toHaveURL('/backlog', { timeout: 10000 })
   })
 
   test('should validate password strength if implemented', async ({ page }) => {
