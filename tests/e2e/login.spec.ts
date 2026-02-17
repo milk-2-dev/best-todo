@@ -88,7 +88,7 @@ test.describe('Login Page', () => {
   test('should successfully login with valid credentials', async ({ page, context }) => {
     // Note: You'll need to have a test user created in Appwrite
     const testEmail = process.env.TEST_USER_EMAIL || 'test@example.com'
-    const testPassword = process.env.TEST_USER_PASSWORD || 'TestPassword123'
+    const testPassword = process.env.TEST_USER_PASSWORD || 'Testpassword123'
     
     // Fill login form with explicit clicks and waits
     const emailInput = page.getByLabel('Email')
@@ -117,7 +117,7 @@ test.describe('Login Page', () => {
 
   test('should show loading state during submission', async ({ page, context }) => {
     const testEmail = process.env.TEST_USER_EMAIL || 'test@example.com'
-    const testPassword = process.env.TEST_USER_PASSWORD || 'TestPassword123'
+    const testPassword = process.env.TEST_USER_PASSWORD || 'Testpassword123'
     
     const emailInput = page.getByLabel('Email')
     await emailInput.click()
@@ -164,10 +164,10 @@ test.describe('Login Page', () => {
 
   test('should handle redirectTo query parameter', async ({ page, context }) => {
     const testEmail = process.env.TEST_USER_EMAIL || 'test@example.com'
-    const testPassword = process.env.TEST_USER_PASSWORD || 'TestPassword123'
+    const testPassword = process.env.TEST_USER_PASSWORD || 'Testpassword123'
     
     // Navigate with redirectTo parameter
-    await page.goto('/login?redirectTo=/dashboard')
+    await page.goto('/login?redirectTo=/today')
     await page.waitForLoadState('networkidle')
     
     // Login
@@ -184,7 +184,7 @@ test.describe('Login Page', () => {
     await page.getByRole('button', { name: 'Sign in' }).click()
     
     // Should redirect to specified path
-    await expect(page).toHaveURL('/dashboard', { timeout: 10000 })
+    await expect(page).toHaveURL('/today', { timeout: 10000 })
     
     // Cleanup
     await context.clearCookies()

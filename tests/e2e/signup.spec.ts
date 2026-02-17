@@ -141,7 +141,7 @@ test.describe('Signup Page', () => {
     // Generate unique email for this test
     const timestamp = Date.now()
     const testEmail = `test.user.${timestamp}@example.com`
-    const testPassword = 'TestPassword123!'
+    const testPassword = 'Testpassword123!'
     
     // Fill signup form with explicit clicks
     await page.getByLabel('Full Name').click()
@@ -218,10 +218,10 @@ test.describe('Signup Page', () => {
   test('should handle redirectTo query parameter', async ({ page, context }) => {
     const timestamp = Date.now()
     const testEmail = `test.user.${timestamp}@example.com`
-    const testPassword = 'TestPassword123!'
+    const testPassword = 'Testpassword123!'
     
     // Navigate with redirectTo parameter
-    await page.goto('/signup?redirectTo=/dashboard')
+    await page.goto('/signup?redirectTo=/today')
     await page.waitForLoadState('networkidle')
     
     // Fill and submit form
@@ -233,7 +233,7 @@ test.describe('Signup Page', () => {
     await page.getByRole('button', { name: 'Create account' }).click()
     
     // Should redirect to specified path
-    await expect(page).toHaveURL('/dashboard', { timeout: 10000 })
+    await expect(page).toHaveURL('/today', { timeout: 10000 })
     
     // Cleanup
     await context.clearCookies()
