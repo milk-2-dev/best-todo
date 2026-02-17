@@ -9,4 +9,3 @@
 /build/
 test-results/
 playwright-report/
-.env.test

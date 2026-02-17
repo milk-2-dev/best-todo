@@ -12,44 +12,59 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24.13.1'
-          cache: 'npm'
-      
-      - name: Install dependencies
+          node-version: "24.13.1"
+          cache: "npm"
+
+      - name: 📥 Install dependencies
         run: npm ci
-      
-      - name: Build
+
+      - name: 🏗 Build
         run: npm run build
+
+      - name: 📦 Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rr-build
+          path: build/
+          if-no-files-found: error
+          retention-days: 1
 
   test:
     name: Playwright Tests
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24.13.1'
-          cache: 'npm'
-      
-      - name: Install dependencies
+          node-version: "24.13.1"
+          cache: "npm"
+
+      - name: 📥 Install dependencies
         run: npm ci
-      
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-      
-      - name: Run Playwright tests
+
+      - name: 📦 Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: rr-build
+          path: build/
+
+      - name: 📥 Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: 🎭 Run Playwright tests
         run: npm run test:e2e
         env:
           VITE_APPWRITE_ENDPOINT: ${{ secrets.VITE_APPWRITE_ENDPOINT }}
           VITE_APPWRITE_PROJECT_ID: ${{ secrets.VITE_APPWRITE_PROJECT_ID }}
-      
-      - name: Upload Playwright Report
+
+      - name: 📊 Upload Playwright Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
