@@ -12,6 +12,10 @@ if (typeof process !== 'undefined') {
   config();
 }
 
+const MODE = process.env.NODE_ENV
+
+console.log(`Lib Appwrite server running in ${MODE} mode`)
+
 const client = new Client()
   .setEndpoint(process.env.APPWRITE_ENDPOINT || "https://cloud.appwrite.io/v1")
   .setProject(process.env.APPWRITE_PROJECT_ID || "");

@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "react-router build",
-    "dev": "react-router dev",
-    "start": "PORT=5173 react-router-serve ./build/server/index.js",
+    "dev": "cross-env NODE_ENV=development react-router dev",
+    "start": "cross-env NODE_ENV=production react-router-serve ./build/server/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
@@ -30,6 +30,7 @@
     "appwrite": "^14.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cross-env": "^10.1.0",
     "date-fns": "^3.6.0",
     "isbot": "^5.1.31",
     "lucide-react": "^0.563.0",
