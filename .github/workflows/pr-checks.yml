@@ -35,6 +35,15 @@ jobs:
     name: Playwright Tests
     needs: build
     runs-on: ubuntu-latest
+    env:
+      CI: true
+      APPWRITE_ENDPOINT: ${{ vars.APPWRITE_ENDPOINT }}
+      APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
+      APPWRITE_API_KEY: ${{ secrets.APPWRITE_API_KEY }}
+      PORT: ${{vars.PORT}}
+      TEST_USER_EMAIL: ${{vars.TEST_USER_EMAIL}}
+      TEST_USER_PASSWORD: ${{vars.TEST_USER_PASSWORD}}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -49,20 +58,12 @@ jobs:
 
       - name: 📥 Install Playwright Browsers
         run: npx playwright install --with-deps chromium
-      
+
       - name: 🏗 Build
         run: npm run build
 
       - name: 🎭 Run Playwright tests
         run: npm run test:e2e
-        env:
-          CI: true
-          APPWRITE_ENDPOINT: ${{ vars.APPWRITE_ENDPOINT }}
-          APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
-          APPWRITE_API_KEY: ${{ secrets.APPWRITE_API_KEY }}
-          PORT: ${{vars.PORT}}
-          TEST_USER_EMAIL: ${{vars.TEST_USER_EMAIL}}
-          TEST_USER_PASSWORD: ${{vars.TEST_USER_PASSWORD}}
 
       - name: 📊 Upload Playwright Report
         uses: actions/upload-artifact@v4

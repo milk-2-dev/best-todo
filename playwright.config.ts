@@ -5,6 +5,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const PORT = process.env.PORT;
+console.log(`Playwright Project_id is ${process.env.APPWRITE_PROJECT_ID} `)
 
 export default defineConfig({
   testDir: "./tests/e2e",
