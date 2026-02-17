@@ -9,7 +9,9 @@ import {
 import * as dotenv from 'dotenv'
 
 // Load environment variables
-dotenv.config()
+if (!process.env.CI) {
+  dotenv.config()
+}
 
 const MODE = process.env.NODE_ENV
 

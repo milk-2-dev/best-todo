@@ -1,8 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 import * as dotenv from "dotenv";
 
-// Load test environment variables
-dotenv.config();
+// Load environment variables
+if (!process.env.CI) {
+  dotenv.config()
+}
 
 const PORT = process.env.PORT;
 console.log(`Playwright Project_id is ${process.env.APPWRITE_PROJECT_ID} `)

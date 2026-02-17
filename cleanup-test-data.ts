@@ -2,7 +2,9 @@ import { Client, Users } from 'node-appwrite'
 import * as dotenv from 'dotenv'
 
 // Load environment variables
-dotenv.config()
+if (!process.env.CI) {
+  dotenv.config()
+}
 
 /**
  * Manual cleanup script for test data
