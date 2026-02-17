@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 import * as dotenv from "dotenv";
 
 // Load test environment variables
-dotenv.config({ path: "./.env.test" });
+dotenv.config();
 
 const PORT = process.env.PORT;
 
@@ -49,9 +49,9 @@ export default defineConfig({
     reuseExistingServer: true,
     stdout: "pipe",
     stderr: "pipe",
-    env: {
-      PORT,
-      NODE_ENV: "test",
-    },
+    // env: {
+    //   PORT,
+    //   NODE_ENV: "test",
+    // },
   },
 });

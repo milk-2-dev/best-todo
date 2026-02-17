@@ -2,7 +2,7 @@ import { Client, Users } from 'node-appwrite'
 import * as dotenv from 'dotenv'
 
 // Load environment variables
-dotenv.config({ path: '.env.test' })
+dotenv.config()
 
 /**
  * Manual cleanup script for test data
@@ -10,8 +10,8 @@ dotenv.config({ path: '.env.test' })
  */
 async function cleanupTestData() {
   console.log('🧹 Starting manual test data cleanup...')
-  console.log('📍 Endpoint:', process.env.VITE_APPWRITE_ENDPOINT)
-  console.log('📍 Project:', process.env.VITE_APPWRITE_PROJECT_ID)
+  console.log('📍 Endpoint:', process.env.APPWRITE_ENDPOINT)
+  console.log('📍 Project:', process.env.APPWRITE_PROJECT_ID)
 
   if (!process.env.APPWRITE_API_KEY) {
     console.error('❌ APPWRITE_API_KEY not found in environment variables!')
@@ -20,8 +20,8 @@ async function cleanupTestData() {
   }
 
   const client = new Client()
-    .setEndpoint(process.env.VITE_APPWRITE_ENDPOINT || '')
-    .setProject(process.env.VITE_APPWRITE_PROJECT_ID || '')
+    .setEndpoint(process.env.APPWRITE_ENDPOINT || '')
+    .setProject(process.env.APPWRITE_PROJECT_ID || '')
     .setKey(process.env.APPWRITE_API_KEY)
 
   const users = new Users(client)

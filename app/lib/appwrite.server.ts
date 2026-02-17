@@ -6,11 +6,10 @@ import {
   TablesDB,
   ID,
 } from "node-appwrite";
-import { config } from 'dotenv';
+import * as dotenv from 'dotenv'
 
-if (typeof process !== 'undefined') {
-  config();
-}
+// Load environment variables
+dotenv.config()
 
 const MODE = process.env.NODE_ENV
 
