@@ -1,6 +1,13 @@
 import { chromium, type FullConfig } from '@playwright/test'
 import { Client, Users, Databases } from 'node-appwrite'
 
+import * as dotenv from 'dotenv'
+
+// Load environment variables
+if (!process.env.CI) {
+  dotenv.config()
+}
+
 /**
  * Global teardown - cleanup test data after all tests
  */
