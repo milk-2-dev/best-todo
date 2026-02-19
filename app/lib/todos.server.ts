@@ -42,7 +42,6 @@ export async function getTodosByStatus(
   userId: string,
   status: Status
 ): Promise<Response> {
-  console.error(`Fetching ${status} todos for user ${userId}...`); // Debug log
   try {
     const response = await tablesDB.listRows({
       ...todosTableCredentials,
