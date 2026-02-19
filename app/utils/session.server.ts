@@ -1,11 +1,12 @@
 import { createCookieSessionStorage, redirect } from "react-router";
 import { createSessionClient } from "~/lib/appwrite.server";
 
-const sessionSecret = process.env.SESSION_SECRET || "default-secret-key";
+const sessionSecret = process.env.SESSION_SECRET || "s3cr3t";
 
 console.log("Node environment from sessionStorage: ", process.env.NODE_ENV);
-console.log("Is CI: ", process.env.CI);
+console.log("Is CI: ", process.env.NODE_ENV);
 console.log("Is session secure: ", process.env.NODE_ENV === "production" && !process.env.CI);
+console.log("SESSION_SECRET: ", process.env.NODE_ENV);
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {

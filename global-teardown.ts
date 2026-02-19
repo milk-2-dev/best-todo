@@ -21,9 +21,14 @@ async function globalTeardown(config: FullConfig) {
 
   const users = new Users(client)
 
+  console.log('🔍 users: ', users)
+  console.log('🔍 Fetching users to identify test accounts...')
+
   try {
     // Get all users
     const usersList = await users.list()
+
+    console.log('🔍 usersList: ', usersList)
     
     let deletedCount = 0
 
