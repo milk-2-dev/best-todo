@@ -54,6 +54,12 @@ jobs:
       TEST_USER_PASSWORD: ${{vars.TEST_USER_PASSWORD}}
 
     steps:
+      - name: 🔍 Debug environment
+        run: |
+          echo "TEST_USER_EMAIL set: $([ -n "$TEST_USER_EMAIL" ] && echo 'YES' || echo 'NO')"
+          echo "TEST_USER_PASSWORD set: $([ -n "$TEST_USER_PASSWORD" ] && echo 'YES' || echo 'NO')"
+          echo "First 5 chars of email: ${TEST_USER_EMAIL:0:5}"
+
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
