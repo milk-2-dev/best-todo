@@ -3,6 +3,8 @@ import { createSessionClient } from "~/lib/appwrite.server";
 
 const sessionSecret = process.env.SESSION_SECRET || "default-secret-key";
 
+console.log("Node environment from sessionStorage: ", process.env.NODE_ENV);
+
 const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: "__session",
@@ -10,8 +12,8 @@ const sessionStorage = createCookieSessionStorage({
     path: "/",
     sameSite: "lax",
     secrets: [sessionSecret],
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 30, // 30 дней
+    secure: process.env.NODE_ENV === "production" && !process.env.CI,
+    maxAge: 60 * 60 * 24 * 30, // 30 days
   },
 });
 
