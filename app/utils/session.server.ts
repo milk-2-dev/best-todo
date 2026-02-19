@@ -20,20 +20,27 @@ export async function getSession(request: Request) {
   return sessionStorage.getSession(cookie);
 }
 
-export async function getSessionToken(request: Request): Promise<string | null> {
+export async function getSessionToken(
+  request: Request
+): Promise<string | null> {
   const session = await getSession(request);
   return session.get("sessionToken") || null;
 }
 
 export async function getUserFromSession(request: Request) {
   const sessionToken = await getSessionToken(request);
-  if (!sessionToken) return null;
+
+  if (!sessionToken) {
+    console.log("❌ No sessionToken in session");
+    return null;
+  }
 
   try {
     const { account } = createSessionClient(sessionToken);
     const user = await account.get();
     return user;
   } catch (error) {
+    console.log("❌ Failed to get user:", error);
     return null;
   }
 }
@@ -59,10 +66,12 @@ export async function createUserSession({
 }) {
   const session = await getSession(request);
   session.set("sessionToken", sessionToken);
-  
+
   return redirect(redirectTo, {
     headers: {
-      "Set-Cookie": await sessionStorage.commitSession(session),
+      "Set-Cookie": await sessionStorage.commitSession(session, {
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      }),
     },
   });
 }
