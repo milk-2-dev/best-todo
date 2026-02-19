@@ -4,6 +4,8 @@ import { createSessionClient } from "~/lib/appwrite.server";
 const sessionSecret = process.env.SESSION_SECRET || "default-secret-key";
 
 console.log("Node environment from sessionStorage: ", process.env.NODE_ENV);
+console.log("Is CI: ", process.env.CI);
+console.log("Is session secure: ", process.env.NODE_ENV === "production" && !process.env.CI);
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {

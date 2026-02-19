@@ -58,7 +58,8 @@ jobs:
         run: |
           echo "TEST_USER_EMAIL set: $([ -n "$TEST_USER_EMAIL" ] && echo 'YES' || echo 'NO')"
           echo "TEST_USER_PASSWORD set: $([ -n "$TEST_USER_PASSWORD" ] && echo 'YES' || echo 'NO')"
-          echo "First 5 chars of email: ${TEST_USER_EMAIL:0:5}"
+          echo "Env test user email: ${TEST_USER_EMAIL}"
+          echo "Env test user password: ${TEST_USER_PASSWORD}"
 
       - uses: actions/checkout@v4
 
