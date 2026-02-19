@@ -4,15 +4,23 @@ import { createSessionClient } from "~/lib/appwrite.server";
 const sessionSecret = process.env.SESSION_SECRET || "s3cr3t";
 
 console.log("Node environment from sessionStorage: ", process.env.NODE_ENV);
-console.log("Is CI: ", process.env.NODE_ENV);
-console.log("Is session secure: ", process.env.NODE_ENV === "production" && !process.env.CI);
-console.log("SESSION_SECRET: ", process.env.NODE_ENV);
+console.log("Is CI: ", process.env.CI);
+console.log(
+  "Is session secure: ",
+  process.env.NODE_ENV === "production" && !process.env.CI
+);
+
+console.log('🔐 SESSION_SECRET:', process.env.SESSION_SECRET ? 
+  process.env.SESSION_SECRET : 
+  'USING FALLBACK: s3cr3t'
+)
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: "__session",
     httpOnly: true,
     path: "/",
+    domain: undefined,
     sameSite: "lax",
     secrets: [sessionSecret],
     secure: process.env.NODE_ENV === "production" && !process.env.CI,
@@ -22,6 +30,7 @@ const sessionStorage = createCookieSessionStorage({
 
 export async function getSession(request: Request) {
   const cookie = request.headers.get("Cookie");
+  console.log('📝 Cookie:', cookie)  // ← приходит ли?
   return sessionStorage.getSession(cookie);
 }
 
@@ -29,11 +38,16 @@ export async function getSessionToken(
   request: Request
 ): Promise<string | null> {
   const session = await getSession(request);
+  console.log('📦 Session data:', session.data)  // ← что прочитано?
   return session.get("sessionToken") || null;
 }
 
 export async function getUserFromSession(request: Request) {
+  console.log('🔍 GET USER')
+
   const sessionToken = await getSessionToken(request);
+
+  console.log('🔑 Token:', sessionToken ? 'EXISTS' : 'MISSING')
 
   if (!sessionToken) {
     console.log("❌ No sessionToken in session");
@@ -69,14 +83,24 @@ export async function createUserSession({
   sessionToken: string;
   redirectTo: string;
 }) {
+
+  console.log('\n🔐 ===== CREATE USER SESSION =====')
+  console.log('📧 Redirect to:', redirectTo)
+  console.log('🎫 Session token:', sessionToken)
+
   const session = await getSession(request);
-  session.set("sessionToken", sessionToken);
+
+  console.log("📦 Session data:", session.data); // ← что сохранено?
+
+  const cookie = await sessionStorage.commitSession(session, {
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  });
+  console.log("🍪 Cookie length:", cookie.length); // ← создался ли?
+  console.log('================================\n')
 
   return redirect(redirectTo, {
     headers: {
-      "Set-Cookie": await sessionStorage.commitSession(session, {
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-      }),
+      "Set-Cookie": cookie,
     },
   });
 }
