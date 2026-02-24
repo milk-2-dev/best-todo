@@ -26,7 +26,7 @@ jobs:
       - name: 🏗 Build
         run: npm run build
         env:
-          CI: false
+          CI: ${{ vars.CI }}
           APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
           APPWRITE_API_KEY: ${{ secrets.APPWRITE_API_KEY }}
           APPWRITE_ENDPOINT: ${{ vars.APPWRITE_ENDPOINT }}
@@ -44,15 +44,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment: .env
-    env:
-      CI: true
-      APPWRITE_ENDPOINT: ${{ vars.APPWRITE_ENDPOINT }}
-      APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
-      APPWRITE_API_KEY: ${{ secrets.APPWRITE_API_KEY }}
-      PORT: ${{vars.PORT}}
-      TEST_USER_EMAIL: ${{vars.TEST_USER_EMAIL}}
-      TEST_USER_PASSWORD: ${{vars.TEST_USER_PASSWORD}}
-      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
 
     steps:
       - name: 🔍 Debug environment
@@ -61,6 +52,7 @@ jobs:
           echo "TEST_USER_PASSWORD set: $([ -n "$TEST_USER_PASSWORD" ] && echo 'YES' || echo 'NO')"
           echo "Env test user email: ${TEST_USER_EMAIL}"
           echo "Env test user password: ${TEST_USER_PASSWORD}"
+          echo "Env appwrite api key: ${APPWRITE_API_KEY}"
 
       - uses: actions/checkout@v4
 
@@ -84,6 +76,15 @@ jobs:
 
       - name: 🎭 Run Playwright tests
         run: npm run test:e2e
+        env:
+          CI: ${{ vars.CI }}
+          APPWRITE_ENDPOINT: ${{ vars.APPWRITE_ENDPOINT }}
+          APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
+          APPWRITE_API_KEY: ${{ secrets.APPWRITE_API_KEY }}
+          PORT: ${{vars.PORT}}
+          TEST_USER_EMAIL: ${{vars.TEST_USER_EMAIL}}
+          TEST_USER_PASSWORD: ${{vars.TEST_USER_PASSWORD}}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
 
       - name: 📊 Upload Playwright Report
         if: failure()
