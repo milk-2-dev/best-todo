@@ -1,78 +1,97 @@
 import { createCookieSessionStorage, redirect } from "react-router";
 import { createSessionClient } from "~/lib/appwrite.server";
 
-const sessionSecret = process.env.SESSION_SECRET || "s3cr3t";
+const SESSION_SECRET = process.env.SESSION_SECRET || "s3cr3t";
 
-console.log("Node environment from sessionStorage: ", process.env.NODE_ENV);
-console.log("Is CI: ", process.env.CI);
+console.log("\n🔍 ===== SESSION SERVER CONF =====");
+console.log("   SESSION_SECRET:", SESSION_SECRET.substring(0, 5) + "***");
 console.log(
-  "Is session secure: ",
+  "   Secure cookies:",
   process.env.NODE_ENV === "production" && !process.env.CI
 );
-
-console.log('🔐 SESSION_SECRET:', process.env.SESSION_SECRET ? 
-  process.env.SESSION_SECRET : 
-  'USING FALLBACK: s3cr3t'
-)
+console.log("====================================\n");
 
 const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: "__session",
     httpOnly: true,
     path: "/",
-    domain: undefined,
     sameSite: "lax",
-    secrets: [sessionSecret],
+    secrets: [SESSION_SECRET],
     secure: process.env.NODE_ENV === "production" && !process.env.CI,
-    maxAge: 60 * 60 * 24 * 30, // 30 days
+    maxAge: 60 * 60 * 24 * 7, // 7 days
   },
 });
 
+// ========================================
+// READ SESSION
+// ========================================
+
 export async function getSession(request: Request) {
-  const cookie = request.headers.get("Cookie");
-  console.log('📝 Cookie:', cookie)  // ← приходит ли?
-  return sessionStorage.getSession(cookie);
+  const cookieHeader = request.headers.get("Cookie");
+
+  try {
+    const session = await sessionStorage.getSession(cookieHeader);
+
+    return session;
+  } catch (error) {
+    console.log("❌ Failed to parse session:", error);
+    return await sessionStorage.getSession(); // return empty session
+  }
 }
 
 export async function getSessionToken(
   request: Request
 ): Promise<string | null> {
-  const session = await getSession(request);
-  console.log('📦 Session data:', session.data)  // ← что прочитано?
-  return session.get("sessionToken") || null;
+  try {
+    const session = await getSession(request);
+
+    const sessionToken = session.get("sessionToken");
+
+    if (!sessionToken) {
+      console.log("❌ No sessionToken in session");
+    }
+
+    return sessionToken || null;
+  } catch (error) {
+    console.log("❌ Error getting sessionToken:", error);
+    return null;
+  }
 }
 
 export async function getUserFromSession(request: Request) {
-  console.log('🔍 GET USER')
-
   const sessionToken = await getSessionToken(request);
 
-  console.log('🔑 Token:', sessionToken ? 'EXISTS' : 'MISSING')
-
-  if (!sessionToken) {
-    console.log("❌ No sessionToken in session");
-    return null;
-  }
+  if (!sessionToken) return null;
 
   try {
     const { account } = createSessionClient(sessionToken);
     const user = await account.get();
+
     return user;
-  } catch (error) {
-    console.log("❌ Failed to get user:", error);
+  } catch (error: any) {
+    console.log("\n====================================");
+    console.log("❌ Failed to get user from Appwrite:", error.message);
+    console.log("====================================\n");
     return null;
   }
 }
 
 export async function requireUser(request: Request) {
   const user = await getUserFromSession(request);
+
   if (!user) {
     const url = new URL(request.url);
     const redirectTo = url.pathname + url.search;
     throw redirect(`/login?redirectTo=${encodeURIComponent(redirectTo)}`);
   }
+
   return user;
 }
+
+// ========================================
+// CREATE SESSION
+// ========================================
 
 export async function createUserSession({
   request,
@@ -83,20 +102,12 @@ export async function createUserSession({
   sessionToken: string;
   redirectTo: string;
 }) {
-
-  console.log('\n🔐 ===== CREATE USER SESSION =====')
-  console.log('📧 Redirect to:', redirectTo)
-  console.log('🎫 Session token:', sessionToken)
-
   const session = await getSession(request);
-
-  console.log("📦 Session data:", session.data); // ← что сохранено?
+  session.set("sessionToken", sessionToken);
 
   const cookie = await sessionStorage.commitSession(session, {
     maxAge: 60 * 60 * 24 * 7, // 7 days
   });
-  console.log("🍪 Cookie length:", cookie.length); // ← создался ли?
-  console.log('================================\n')
 
   return redirect(redirectTo, {
     headers: {
@@ -104,6 +115,10 @@ export async function createUserSession({
     },
   });
 }
+
+// ========================================
+// DESTROY SESSION
+// ========================================
 
 export async function logout(request: Request) {
   const session = await getSession(request);
@@ -113,14 +128,19 @@ export async function logout(request: Request) {
     try {
       const { account } = createSessionClient(sessionToken);
       await account.deleteSession("current");
-    } catch (error) {
-      console.error("Error deleting Appwrite session:", error);
+      console.log("✅ Appwrite session deleted");
+    } catch (error: any) {
+      console.log("⚠️  Error deleting Appwrite session:", error.message);
     }
+  } else {
+    console.log("⚠️  No sessionToken to delete");
   }
+
+  const destroyCookie = await sessionStorage.destroySession(session);
 
   return redirect("/login", {
     headers: {
-      "Set-Cookie": await sessionStorage.destroySession(session),
+      "Set-Cookie": destroyCookie,
     },
   });
 }

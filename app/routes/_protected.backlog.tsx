@@ -11,7 +11,8 @@ import {
   deleteTodo,
 } from "~/lib/todos.server";
 
-import { requireUser } from "~/utils/session.server";
+import { getSessionToken, getUserFromSession } from "~/utils/session.server";
+import { createSessionClient } from "~/lib/appwrite.server";
 
 import TodoPage from "../components/todos/TodoPage";
 
@@ -24,19 +25,28 @@ export function meta({}: Route.MetaArgs) {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    const user = await requireUser(request);
-    const todos = await getTodosByStatus(user.$id, "backlog");
+    const sessionToken = await getSessionToken(request);
+    const user = await getUserFromSession(request);
 
-    return Response.json({ todos, user });
+    console.log("session token: ", sessionToken ? sessionToken.substring(0, 15) + "***" : "NONE");
+
+    if (sessionToken && user) {
+      const { tablesDB } = createSessionClient(sessionToken);
+      const todos = await getTodosByStatus(tablesDB, user.$id, "backlog");
+
+      return Response.json({ todos, user });
+    }
   } catch (error) {
     throw new Response("Unauthorized", { status: 401 });
   }
 }
 
 export async function action({ request }: Route.ActionArgs): Promise<Response> {
-  const user = await requireUser(request);
+  const user = await getSessionToken(request);
   const data = await request.json();
   const { intent, todoId, ...todoData } = data;
+
+  if(!user) throw new Response("Unauthorized", { status: 401 });
 
   try {
     switch (intent) {
