@@ -52,6 +52,7 @@ jobs:
       PORT: ${{vars.PORT}}
       TEST_USER_EMAIL: ${{vars.TEST_USER_EMAIL}}
       TEST_USER_PASSWORD: ${{vars.TEST_USER_PASSWORD}}
+      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
 
     steps:
       - name: 🔍 Debug environment
