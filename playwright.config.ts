@@ -6,6 +6,11 @@ if (!process.env.CI) {
   dotenv.config()
 }
 
+console.log("\n🔍 ===== PLAYWRITE CONF =====");
+console.log("TEST USER EMAIL: ", process.env.TEST_USER_EMAIL);
+console.log("PORT: ", process.env.PORT);
+console.log("====================================\n");
+
 const PORT = process.env.PORT;
 console.log(`Playwright Project_id is ${process.env.APPWRITE_PROJECT_ID} `)
 
