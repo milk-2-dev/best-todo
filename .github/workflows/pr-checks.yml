@@ -52,7 +52,6 @@ jobs:
           echo "TEST_USER_PASSWORD set: $([ -n "$TEST_USER_PASSWORD" ] && echo 'YES' || echo 'NO')"
           echo "Env test user email: ${TEST_USER_EMAIL}"
           echo "Env test user password: ${TEST_USER_PASSWORD}"
-          echo "Env appwrite api key: ${APPWRITE_API_KEY}"
 
       - uses: actions/checkout@v4
 

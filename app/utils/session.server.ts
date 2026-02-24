@@ -3,14 +3,6 @@ import { createSessionClient } from "~/lib/appwrite.server";
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "s3cr3t";
 
-console.log("\n🔍 ===== SESSION SERVER CONF =====");
-console.log("   SESSION_SECRET:", SESSION_SECRET.substring(0, 5) + "***");
-console.log(
-  "   Secure cookies:",
-  process.env.NODE_ENV === "production" && !process.env.CI
-);
-console.log("====================================\n");
-
 const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: "__session",
