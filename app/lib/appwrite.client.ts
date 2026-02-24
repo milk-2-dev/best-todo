@@ -6,6 +6,8 @@ export const createAppwriteClient = () => {
     .setEndpoint(window.ENV.APPWRITE_ENDPOINT)
     .setProject(window.ENV.APPWRITE_PROJECT_ID);
 
+    console.log('Client side project ', window.ENV.APPWRITE_PROJECT_ID);
+
   return {
     client,
     account: new Account(client),

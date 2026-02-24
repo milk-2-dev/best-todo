@@ -1,44 +1,66 @@
-import {
-  Client,
-  Account,
-  Databases,
-  Functions,
-  TablesDB,
-  ID,
-} from "node-appwrite";
+import { Client, Account, Databases, ID, TablesDB } from "node-appwrite";
+import "dotenv/config";
 
-const client = new Client()
+// ========================================
+// SERVER CLIENT (with API key)
+// ========================================
+
+const pablicClient = new Client()
   .setEndpoint(process.env.APPWRITE_ENDPOINT || "https://cloud.appwrite.io/v1")
   .setProject(process.env.APPWRITE_PROJECT_ID || "");
 
-// For server-side operations
+// ========================================
+// SERVER CLIENT (with API key)
+// ========================================
+
+const serverClient = new Client()
+  .setEndpoint(process.env.APPWRITE_ENDPOINT || "https://cloud.appwrite.io/v1")
+  .setProject(process.env.APPWRITE_PROJECT_ID || "");
+
 if (process.env.APPWRITE_API_KEY) {
-  client.setKey(process.env.APPWRITE_API_KEY);
+  serverClient.setKey(process.env.APPWRITE_API_KEY);
+} else {
+  console.warn("⚠️  No APPWRITE_API_KEY - session creation will fail!");
 }
 
-export const account = new Account(client);
-export const databases = new Databases(client);
-export const functions = new Functions(client);
-export const tablesDB = new TablesDB(client);
+// ========================================
+// PUBLIC ACCOUNT (login/signup)
+// ========================================
 
+export const publicAccount = new Account(pablicClient);
 
-export const DATABASE_ID = process.env.APPWRITE_DATABASE_ID || "";
-export const TODOS_COLLECTION_ID =
-  process.env.APPWRITE_TODOS_COLLECTION_ID || "";
+// ========================================
+// ADMIN SERVICES (cleanup, management)
+// ========================================
+
+export const serverAccount = new Account(serverClient);
+export const serverDatabases = new Databases(serverClient);
+export const serverTablesDB = new TablesDB(serverClient);
+
+// ========================================
+// SESSION CLIENT (authenticated requests)
+// ========================================
 
 export function createSessionClient(sessionToken: string) {
   const sessionClient = new Client()
     .setEndpoint(
       process.env.APPWRITE_ENDPOINT || "https://cloud.appwrite.io/v1"
     )
-    .setProject(process.env.APPWRITE_PROJECT_ID || "");
-
-  sessionClient.setSession(sessionToken);
+    .setProject(process.env.APPWRITE_PROJECT_ID || "")
+    .setSession(sessionToken);
 
   return {
     account: new Account(sessionClient),
     databases: new Databases(sessionClient),
+    tablesDB: new TablesDB(sessionClient),
   };
 }
 
-export { client, ID };
+// ========================================
+// EXPORTS
+// ========================================
+
+export { ID };
+export const DATABASE_ID = process.env.APPWRITE_DATABASE_ID || "";
+export const TODOS_COLLECTION_ID =
+  process.env.APPWRITE_TODOS_COLLECTION_ID || "";

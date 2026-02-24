@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { Route } from "./+types/login";
 
 import { createUserSession } from "~/utils/session.server";
-import { account } from "~/lib/appwrite.server";
+import { serverAccount } from "~/lib/appwrite.server";
 import { loginSchema, type LoginFormData } from "~/lib/validations/auth";
 
 import { Button } from "~/components/ui/button";
@@ -28,7 +28,6 @@ import {
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
-  console.log("formData: ", formData);
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
@@ -47,8 +46,11 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    const session = await account.createEmailPasswordSession(email, password);
-
+    const session = await serverAccount.createEmailPasswordSession(
+      email,
+      password
+    );
+    
     return createUserSession({
       request,
       sessionToken: session.secret,

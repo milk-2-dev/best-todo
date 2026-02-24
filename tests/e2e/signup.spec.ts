@@ -1,8 +1,13 @@
 import { test, expect } from '@playwright/test'
 
+// Run tests in this file serially to avoid state conflicts
+test.describe.configure({ mode: 'serial' })
+
 test.describe('Signup Page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/signup')
+    // Wait for page to be fully loaded
+    await page.waitForLoadState('networkidle')
   })
 
   test('should display signup form with all elements', async ({ page }) => {
@@ -41,29 +46,48 @@ test.describe('Signup Page', () => {
   })
 
   test('should show validation error for invalid email format', async ({ page }) => {
+    await page.getByLabel('Full Name').click()
     await page.getByLabel('Full Name').fill('John Doe')
+    
+    await page.getByLabel('Email').click()
     await page.getByLabel('Email').fill('invalid-email')
-    await page.getByLabel('Password', { exact: true }).fill('password123')
-    await page.getByLabel('Confirm Password').fill('password123')
+    await expect(page.getByLabel('Email')).toHaveValue('invalid-email')
+    
+    await page.getByLabel('Password', { exact: true }).click()
+    await page.getByLabel('Password', { exact: true }).fill('Password123')
+    
+    await page.getByLabel('Confirm Password').click()
+    await page.getByLabel('Confirm Password').fill('Password123')
+    
     await page.getByLabel(/I agree to the/).check()
     
     await page.getByRole('button', { name: 'Create account' }).click()
     
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
     await expect(page).toHaveURL(/\/signup/)
   })
 
   test('should show error when passwords do not match', async ({ page }) => {
+    await page.getByLabel('Full Name').click()
     await page.getByLabel('Full Name').fill('John Doe')
+    
+    await page.getByLabel('Email').click()
     await page.getByLabel('Email').fill('john@example.com')
-    await page.getByLabel('Password', { exact: true }).fill('password123')
+    
+    await page.getByLabel('Password', { exact: true }).click()
+    await page.getByLabel('Password', { exact: true }).fill('Password123')
+    await expect(page.getByLabel('Password', { exact: true })).toHaveValue('Password123')
+    
+    await page.getByLabel('Confirm Password').click()
     await page.getByLabel('Confirm Password').fill('differentpassword')
+    await expect(page.getByLabel('Confirm Password')).toHaveValue('differentpassword')
+    
     await page.getByLabel(/I agree to the/).check()
     
     await page.getByRole('button', { name: 'Create account' }).click()
     
     // Wait for validation
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(1000)
     
     // Should show validation error or stay on page
     await expect(page).toHaveURL(/\/signup/)
@@ -72,8 +96,8 @@ test.describe('Signup Page', () => {
   test('should require terms checkbox to be checked', async ({ page }) => {
     await page.getByLabel('Full Name').fill('John Doe')
     await page.getByLabel('Email').fill('john@example.com')
-    await page.getByLabel('Password', { exact: true }).fill('password123')
-    await page.getByLabel('Confirm Password').fill('password123')
+    await page.getByLabel('Password', { exact: true }).fill('Password123')
+    await page.getByLabel('Confirm Password').fill('Password123')
     
     // Don't check terms checkbox
     await page.getByRole('button', { name: 'Create account' }).click()
@@ -87,30 +111,55 @@ test.describe('Signup Page', () => {
     // Use an email that already exists in your test database
     const existingEmail = process.env.TEST_USER_EMAIL || 'test@example.com'
     
+    await page.getByLabel('Full Name').click()
     await page.getByLabel('Full Name').fill('John Doe')
+    
+    await page.getByLabel('Email').click()
     await page.getByLabel('Email').fill(existingEmail)
-    await page.getByLabel('Password', { exact: true }).fill('newpassword123')
-    await page.getByLabel('Confirm Password').fill('newpassword123')
+    await expect(page.getByLabel('Email')).toHaveValue(existingEmail)
+    
+    await page.getByLabel('Password', { exact: true }).click()
+    await page.getByLabel('Password', { exact: true }).fill('Newpassword123')
+    
+    await page.getByLabel('Confirm Password').click()
+    await page.getByLabel('Confirm Password').fill('Newpassword123')
+    
     await page.getByLabel(/I agree to the/).check()
     
     await page.getByRole('button', { name: 'Create account' }).click()
     
+    // Wait for server response
+    await page.waitForLoadState('networkidle')
+    
     // Should show error message about existing account
-    await expect(page.locator('.bg-red-50')).toBeVisible({ timeout: 5000 })
-    await expect(page.locator('.bg-red-50')).toContainText(/already exists/i)
+    const errorMessage = page.locator('.bg-red-50')
+    await expect(errorMessage).toBeVisible({ timeout: 5000 })
+    await expect(errorMessage).toContainText(/already exists/i)
   })
 
-  test('should successfully create account and login', async ({ page }) => {
+  test('should successfully create account and login', async ({ page, context }) => {
     // Generate unique email for this test
     const timestamp = Date.now()
     const testEmail = `test.user.${timestamp}@example.com`
-    const testPassword = 'TestPassword123!'
+    const testPassword = 'Testpassword123!'
     
-    // Fill signup form
+    // Fill signup form with explicit clicks
+    await page.getByLabel('Full Name').click()
     await page.getByLabel('Full Name').fill('Test User')
+    await expect(page.getByLabel('Full Name')).toHaveValue('Test User')
+    
+    await page.getByLabel('Email').click()
     await page.getByLabel('Email').fill(testEmail)
+    await expect(page.getByLabel('Email')).toHaveValue(testEmail)
+    
+    await page.getByLabel('Password', { exact: true }).click()
     await page.getByLabel('Password', { exact: true }).fill(testPassword)
+    await expect(page.getByLabel('Password', { exact: true })).toHaveValue(testPassword)
+    
+    await page.getByLabel('Confirm Password').click()
     await page.getByLabel('Confirm Password').fill(testPassword)
+    await expect(page.getByLabel('Confirm Password')).toHaveValue(testPassword)
+    
     await page.getByLabel(/I agree to the/).check()
     
     // Submit form
@@ -118,6 +167,9 @@ test.describe('Signup Page', () => {
     
     // Should redirect to /backlog after successful signup
     await expect(page).toHaveURL('/backlog', { timeout: 10000 })
+    
+    // Cleanup: logout to avoid affecting next tests
+    await context.clearCookies()
   })
 
   test('should show loading state during submission', async ({ page }) => {
@@ -126,8 +178,8 @@ test.describe('Signup Page', () => {
     
     await page.getByLabel('Full Name').fill('Test User')
     await page.getByLabel('Email').fill(testEmail)
-    await page.getByLabel('Password', { exact: true }).fill('password123')
-    await page.getByLabel('Confirm Password').fill('password123')
+    await page.getByLabel('Password', { exact: true }).fill('Password123')
+    await page.getByLabel('Confirm Password').fill('Password123')
     await page.getByLabel(/I agree to the/).check()
     
     // Click submit
@@ -163,13 +215,14 @@ test.describe('Signup Page', () => {
     await expect(confirmPasswordInput).toHaveAttribute('autocomplete', 'new-password')
   })
 
-  test('should handle redirectTo query parameter', async ({ page }) => {
+  test('should handle redirectTo query parameter', async ({ page, context }) => {
     const timestamp = Date.now()
     const testEmail = `test.user.${timestamp}@example.com`
-    const testPassword = 'TestPassword123!'
+    const testPassword = 'Testpassword123!'
     
     // Navigate with redirectTo parameter
-    await page.goto('/signup?redirectTo=/dashboard')
+    await page.goto('/signup?redirectTo=/today')
+    await page.waitForLoadState('networkidle')
     
     // Fill and submit form
     await page.getByLabel('Full Name').fill('Test User')
@@ -180,7 +233,10 @@ test.describe('Signup Page', () => {
     await page.getByRole('button', { name: 'Create account' }).click()
     
     // Should redirect to specified path
-    await expect(page).toHaveURL('/dashboard', { timeout: 10000 })
+    await expect(page).toHaveURL('/today', { timeout: 10000 })
+    
+    // Cleanup
+    await context.clearCookies()
   })
 
   test('should validate password strength if implemented', async ({ page }) => {

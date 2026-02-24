@@ -1,21 +1,16 @@
-// app/types/todo.ts
+import type { Todos, TodosStatus } from "./appwrite";
 
 export type Priority = "low" | "medium" | "high";
 export type Status = "backlog" | "today" | "upcoming" | "completed";
 export type ViewMode = "list" | "board";
 
-export interface Todo {
+export interface Todo extends Todos {
   $id: string;
-  title: string;
-  description: string;
-  dueDate?: string; // ISO string
-  priority: Priority;
-  status: Status;
-  parentId?: string | null;
-  userId: string;
-  createdAt: string;
-  order: number; // для сортировки
-  subtasks?: Todo[];
+  $createdAt: string;
+}
+
+export interface TodoNode extends Todo {
+  subtasks: TodoNode[];
 }
 
 export interface CreateTodoInput {

@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import type { Todo } from "~/types/todo";
 
 import { useViewMode } from "~/contexts/ViewModeContext";
+
+import { buildTodoTree } from "~/lib/todoTreeUtils";
 
 import TodoList from "./TodoList";
 import KanbanBoard from "./KanbanBoard";
@@ -16,6 +18,8 @@ export default function TodoPage({ todos }: Props) {
   const {viewMode} = useViewMode();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+
+  const todoTree = useMemo(() => buildTodoTree(todos.rows), [todos.rows]);
 
   const isLoading = false;
 
@@ -47,7 +51,7 @@ export default function TodoPage({ todos }: Props) {
       <div className="flex-1 overflow-auto p-4 lg:p-8">
         {viewMode === "list" ? (
           <TodoList
-            tasks={todos.rows}
+            tasks={todoTree}
             isLoading={isLoading}
             onToggleComplete={handleToggleComplete}
             onEdit={handleEdit}
@@ -58,7 +62,7 @@ export default function TodoPage({ todos }: Props) {
           />
         ) : (
           <KanbanBoard
-            tasks={todos.rows}
+            tasks={todoTree}
             isLoading={isLoading}
             onToggleComplete={handleToggleComplete}
             onEdit={handleEdit}

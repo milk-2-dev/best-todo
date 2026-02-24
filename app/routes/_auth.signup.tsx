@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { Route } from "./+types/signup";
 
 import { createUserSession } from "~/utils/session.server";
-import { account } from "~/lib/appwrite.server";
+import { serverAccount } from "~/lib/appwrite.server";
 import { signupSchema, type SignupFormData } from "~/lib/validations/auth";
 
 import { Button } from "~/components/ui/button";
@@ -50,7 +50,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   try {
     // Create user account
-    const user = await account.create(
+    const user = await serverAccount.create(
       ID.unique(),
       email,
       password,
@@ -58,7 +58,7 @@ export async function action({ request }: Route.ActionArgs) {
     );
 
     // Automatically log in the user after registration
-    const session = await account.createEmailPasswordSession(email, password);
+    const session = await serverAccount.createEmailPasswordSession(email, password);
 
     return createUserSession({
       request,

@@ -1,13 +1,17 @@
-import React from "react";
 import {
   Calendar,
   Flag,
   MoreHorizontal,
   CheckCircle2,
   Circle,
+  ListChecks,
 } from "lucide-react";
-import { cn } from "~/lib/utils";
 import { format } from "date-fns";
+
+import { cn } from "~/lib/utils";
+
+import type { TodoNode } from "~/types/todo";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +26,15 @@ const priorityConfig = {
   high: { color: "text-red-500", bg: "bg-red-50", label: "High" },
 };
 
+type TodoCardProps = {
+  task: TodoNode[];
+  onToggleComplete: (task: any) => void;
+  onEdit: (task: any) => void;
+  onDelete: (task: any) => void;
+  onStatusChange: (task: any, status: string) => void;
+  variant?: "list" | "kanban";
+};
+
 export default function TodoCard({
   task,
   onToggleComplete,
@@ -29,7 +42,7 @@ export default function TodoCard({
   onDelete,
   onStatusChange,
   variant = "list",
-}) {
+}: TodoCardProps) {
   const isCompleted = task.status === "completed";
   const priority = priorityConfig[task.priority] || priorityConfig.medium;
 
@@ -67,6 +80,19 @@ export default function TodoCard({
               </p>
             )}
             <div className="flex items-center gap-2 mt-3">
+              {task.subtasks?.length > 0 && (
+                <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                  <ListChecks className="w-3 h-3" />
+                  {task.subtasks.filter((s) => s.completed).length}/
+                  {task.subtasks.length}
+                </span>
+              )}
+              {task.dueDate && (
+                <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                  <Calendar className="w-3 h-3" />
+                  {format(new Date(task.dueDate), "MMM d")}
+                </span>
+              )}
               {task.priority && task.priority !== "medium" && (
                 <span
                   className={cn(
@@ -77,12 +103,6 @@ export default function TodoCard({
                 >
                   <Flag className="w-3 h-3" />
                   {priority.label}
-                </span>
-              )}
-              {task.due_date && (
-                <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                  <Calendar className="w-3 h-3" />
-                  {format(new Date(task.due_date), "MMM d")}
                 </span>
               )}
             </div>
@@ -122,19 +142,28 @@ export default function TodoCard({
       </div>
 
       <div className="flex items-center gap-3">
-        {task.priority && <Flag className={cn("w-4 h-4", priority.color)} />}
-        {task.due_date && (
-          <span className="text-xs text-slate-500 flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5" />
-            {format(new Date(task.due_date), "MMM d")}
+        {task.subtasks?.length > 0 && (
+          <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+            <ListChecks className="w-3 h-3" />
+            {task.subtasks.filter((s) => s.completed).length}/
+            {task.subtasks.length}
           </span>
         )}
+
+        {task.dueDate && (
+          <span className="text-xs text-slate-500 flex items-center gap-1">
+            <Calendar className="w-3.5 h-3.5" />
+            {format(new Date(task.dueDate), "MMM d")}
+          </span>
+        )}
+
+        {task.priority && <Flag className={cn("w-4 h-4", priority.color)} />}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               onClick={(e) => e.stopPropagation()}
-              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-slate-100 transition-all"
+              className="group-hover:opacity-100 p-1.5 rounded-lg hover:bg-slate-100 transition-all"
             >
               <MoreHorizontal className="w-4 h-4 text-slate-400" />
             </button>
