@@ -71,7 +71,12 @@
     "tables": [
         {
             "$id": "todos",
-            "$permissions": [],
+            "$permissions": [
+                "read(\"users\")",
+                "create(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
             "databaseId": "698c832300023603d12e",
             "name": "todos",
             "enabled": true,
