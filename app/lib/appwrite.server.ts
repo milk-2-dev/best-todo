@@ -3,7 +3,7 @@ import "dotenv/config";
 
 console.log("\n🔍 ===== APPWRITE CONF =====");
 console.log("PROJECT ID: ", process.env.APPWRITE_PROJECT_ID);
-console.log("API KEY: ", process.env.APPWRITE_API_KEY ? process.env.APPWRITE_API_KEY.substring(0, 5) + "***": null);
+console.log("API KEY: ", process.env.APPWRITE_API_KEY ? process.env.APPWRITE_API_KEY.substring(0, 5) + "_TEST": null);
 console.log("PORT: ", process.env.PORT);
 console.log("====================================\n");
 

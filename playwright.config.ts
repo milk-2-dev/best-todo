@@ -9,10 +9,11 @@ if (!process.env.CI) {
 console.log("\n🔍 ===== PLAYWRITE CONF =====");
 console.log("TEST USER EMAIL: ", process.env.TEST_USER_EMAIL);
 console.log("PORT: ", process.env.PORT);
+console.log("PROJECT ID: ", process.env.APPWRITE_PROJECT_ID ? process.env.APPWRITE_PROJECT_ID.substring(0, 5) + "TEST" : null);
+console.log("API KEY: ", process.env.APPWRITE_API_KEY ? process.env.APPWRITE_API_KEY.substring(0, 5) + "_TEST" : null);
 console.log("====================================\n");
 
 const PORT = process.env.PORT;
-console.log(`Playwright Project_id is ${process.env.APPWRITE_PROJECT_ID} `)
 
 export default defineConfig({
   testDir: "./tests/e2e",
