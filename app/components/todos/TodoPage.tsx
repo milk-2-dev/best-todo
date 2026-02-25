@@ -15,7 +15,7 @@ interface Props {
 }
 
 export default function TodoPage({ todos }: Props) {
-  const {viewMode} = useViewMode();
+  const { viewMode } = useViewMode();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 

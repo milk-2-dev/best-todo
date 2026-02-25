@@ -6,7 +6,7 @@ import EmptyState from "./EmptyState";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Button } from "~/components/ui/button";
 
-export default function TaskList({
+export default function TodoList({
   tasks,
   isLoading,
   onToggleComplete,
