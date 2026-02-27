@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils";
 
 import { useNavItems } from "~/hooks/useNavItems";
 
-import type { Todo } from "~/types/todo";
+import type { TodoNode, Priority } from "~/types/todo";
 
 import { Calendar as CalendarIcon, Flag, Loader2, Trash2, Plus } from "lucide-react";
 
@@ -39,7 +39,7 @@ import SubTodoItem from "./SubTodoItem";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  todo: Todo;
+  todo: TodoNode;
 }
 
 const defaultTask = {
@@ -49,6 +49,7 @@ const defaultTask = {
   status: "",
   priority: "medium",
   dueDate: "",
+  subtasks: []
 };
 
 export default function TaskModal({ isOpen, onClose, todo }: Props) {
@@ -79,7 +80,6 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
       if (fetcher.data.success) {
         onClose();
         setFormData(defaultTask);
-        console.log("Success:", fetcher.data.message);
       } else {
         console.error("Error:", fetcher.data.error);
         // TODO: Show error message to user
@@ -121,6 +121,10 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
 
   const addSubtask = () => {
     console.log("addSubtask - ")
+  }
+  
+  const handleUpdateSubTodo = () => {
+    console.log("handleUpdateSubTodo - ")
   }
   const toggleSubtask = () => {
     console.log("toggleSubtask - ")
@@ -256,7 +260,7 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
                         dueDate: date ? format(date, "yyyy-MM-dd") : "",
                       })
                     }
-                    initialFocus
+                    disabled={{ before: new Date() }}
                   />
                 </PopoverContent>
               </Popover>
@@ -292,6 +296,7 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
                     key={subtask.$id}
                     subtask={subtask}
                     onToggle={toggleSubtask}
+                    onUpdate={handleUpdateSubTodo}
                     onRemove={removeSubtask}
                     onAddChild={addChildSubtask}
                   />
@@ -319,8 +324,6 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
               </Button>
             </div>
           </div>
-
-          
 
           <div className="flex items-center gap-3 pt-2">
             {isEditing && (

@@ -134,9 +134,9 @@ export default function TodoCard({
     <Collapsible key={task.$id} onOpenChange={handleCollapsibleChanged}>
       <div
         className={cn(
-          "group py-3.5 bg-white transition-all duration-200",
+          "group  bg-white transition-all duration-200",
           nestingLevel === DEFAULT_NESTING_LEVEL &&
-            "px-4 border border-slate-200/60 rounded-xl hover:shadow-md hover:border-slate-300/60"
+            "py-3.5 px-4 border border-slate-200/60 rounded-xl hover:shadow-md hover:border-slate-300/60"
         )}
       >
         <div className="flex items-center gap-4">
@@ -254,7 +254,7 @@ export default function TodoCard({
 
         {task.subtasks?.length > 0 && (
           <CollapsibleContent
-            className={`${nestingClass} border-t border-slate-200/60 mt-3`}
+            className={`${nestingClass} border-t border-slate-200/60 mt-3 space-y-3 pt-3`}
           >
             {task.subtasks.map((subtask) => (
               <TodoCard
