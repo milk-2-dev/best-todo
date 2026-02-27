@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useFetcher } from "react-router";
 import { format } from "date-fns";
 
@@ -6,9 +6,22 @@ import { cn } from "~/lib/utils";
 
 import { useNavItems } from "~/hooks/useNavItems";
 
-import type { TodoNode, Priority } from "~/types/todo";
+import type {
+  TodoNode,
+  TodoFormPayload,
+  TaskFormData,
+  TaskFormIntent,
+  Priority,
+} from "~/types/todo";
+import type { TodosStatus } from "~/types/appwrite";
 
-import { Calendar as CalendarIcon, Flag, Loader2, Trash2, Plus } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  Flag,
+  Loader2,
+  Trash2,
+  Plus,
+} from "lucide-react";
 
 import {
   Dialog,
@@ -43,18 +56,18 @@ interface Props {
 }
 
 const defaultTask = {
-  intent: "create",
+  intent: "create" as TaskFormIntent,
   title: "",
   description: "",
-  status: "",
-  priority: "medium",
+  status: "backlog" as TodosStatus,
+  priority: "low" as Priority,
   dueDate: "",
-  subtasks: []
+  subtasks: [],
 };
 
 export default function TodoModal({ isOpen, onClose, todo }: Props) {
-  const [formData, setFormData] = useState(defaultTask);
-  const [newSubtask, setNewSubtask] = useState('');
+  const [formData, setFormData] = useState<TaskFormData>(defaultTask);
+  const [newSubtask, setNewSubtask] = useState("");
   const fetcher = useFetcher({ key: "todo-form" });
   const isEditing = !!todo?.$id;
 
@@ -70,7 +83,7 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
     } else {
       setFormData({
         ...defaultTask,
-        status: activeNavItem?.id || "backlog",
+        status: activeNavItem?.id as TodosStatus || "backlog",
       });
     }
   }, [todo, isOpen]);
@@ -95,11 +108,16 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
     e.preventDefault();
     if (!formData.title.trim()) return;
 
-    const submitData = {
-      ...formData,
-      intent: isEditing ? "update" : "create",
-      ...(isEditing && { todoId: todo.$id }),
-    };
+    const submitData: TodoFormPayload = isEditing
+      ? {
+          ...formData,
+          intent: "update",
+          todoId: todo.$id,
+        }
+      : {
+          ...formData,
+          intent: "create",
+        };
 
     await fetcher.submit(submitData, {
       method: "post",
@@ -109,32 +127,34 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
 
   const handleDelete = async () => {
     if (todo?.$id) {
-      await fetcher.submit(
-        { todoId: todo.$id, intent: "delete" },
-        {
-          method: "post",
-          encType: "application/json",
-        }
-      );
+      const submitData: TodoFormPayload = {
+        todoId: todo.$id,
+        intent: "delete",
+      };
+
+      await fetcher.submit(submitData, {
+        method: "post",
+        encType: "application/json",
+      });
     }
   };
 
   const addSubtask = () => {
-    console.log("addSubtask - ")
-  }
-  
+    console.log("addSubtask - ");
+  };
+
   const handleUpdateSubTodo = () => {
-    console.log("handleUpdateSubTodo - ")
-  }
+    console.log("handleUpdateSubTodo - ");
+  };
   const toggleSubtask = () => {
-    console.log("toggleSubtask - ")
-  }
+    console.log("toggleSubtask - ");
+  };
   const removeSubtask = () => {
-    console.log("removeSubtask - ")
-  }
+    console.log("removeSubtask - ");
+  };
   const addChildSubtask = () => {
-    console.log("addChildSubtask - ")
-  }
+    console.log("addChildSubtask - ");
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -177,7 +197,7 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
               <Select
                 value={formData.status}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, status: value })
+                  setFormData({ ...formData, status: value as TodosStatus })
                 }
               >
                 <SelectTrigger className="border-slate-200">
@@ -199,7 +219,7 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
               <Select
                 value={formData.priority}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, priority: value })
+                  setFormData({ ...formData, priority: value as Priority })
                 }
               >
                 <SelectTrigger className="border-slate-200">
@@ -277,7 +297,7 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
             <Textarea
               id="description"
               placeholder="Add more details..."
-              value={formData.description}
+              value={formData.description as string || ""}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
@@ -287,8 +307,10 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
 
           {/* Subtasks */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-slate-700">Subtasks</Label>
-            
+            <Label className="text-sm font-medium text-slate-700">
+              Subtasks
+            </Label>
+
             {formData.subtasks?.length > 0 && (
               <div className="space-y-1 max-h-[200px] overflow-y-auto pr-2">
                 {formData.subtasks.map((subtask) => (
@@ -309,7 +331,9 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
                 placeholder="Add a subtask..."
                 value={newSubtask}
                 onChange={(e) => setNewSubtask(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSubtask())}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && (e.preventDefault(), addSubtask())
+                }
                 className="border-slate-200 text-sm"
               />
               <Button

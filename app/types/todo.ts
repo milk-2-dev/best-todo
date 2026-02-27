@@ -12,8 +12,8 @@ export type TaskFormIntent = "create" | "update" | "delete";
 export interface TaskFormData {
   intent: TaskFormIntent;
   title: string;
-  description: string;
-  status: TodosStatus | "";
+  description: string | null;
+  status: TodosStatus;
   priority: Priority;
   dueDate: string;
   subtasks: TodoNode[];
