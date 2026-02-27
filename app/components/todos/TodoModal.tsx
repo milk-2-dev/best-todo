@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useFetcher } from "react-router";
 import { format } from "date-fns";
 
@@ -6,9 +6,22 @@ import { cn } from "~/lib/utils";
 
 import { useNavItems } from "~/hooks/useNavItems";
 
-import type { Todo } from "~/types/todo";
+import type {
+  TodoNode,
+  TodoFormPayload,
+  TaskFormData,
+  TaskFormIntent,
+  Priority,
+} from "~/types/todo";
+import type { TodosStatus } from "~/types/appwrite";
 
-import { Calendar as CalendarIcon, Flag, Loader2, Trash2 } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  Flag,
+  Loader2,
+  Trash2,
+  Plus,
+} from "lucide-react";
 
 import {
   Dialog,
@@ -33,25 +46,28 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { de } from "zod/v4/locales";
+
+import SubTodoItem from "./SubTodoItem";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  todo: Todo;
+  todo: TodoNode;
 }
 
 const defaultTask = {
-  intent: "create",
+  intent: "create" as TaskFormIntent,
   title: "",
   description: "",
-  status: "",
-  priority: "medium",
+  status: "backlog" as TodosStatus,
+  priority: "low" as Priority,
   dueDate: "",
+  subtasks: [],
 };
 
-export default function TaskModal({ isOpen, onClose, todo }: Props) {
-  const [formData, setFormData] = useState(defaultTask);
+export default function TodoModal({ isOpen, onClose, todo }: Props) {
+  const [formData, setFormData] = useState<TaskFormData>(defaultTask);
+  const [newSubtask, setNewSubtask] = useState("");
   const fetcher = useFetcher({ key: "todo-form" });
   const isEditing = !!todo?.$id;
 
@@ -67,7 +83,7 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
     } else {
       setFormData({
         ...defaultTask,
-        status: activeNavItem?.id || "backlog",
+        status: activeNavItem?.id as TodosStatus || "backlog",
       });
     }
   }, [todo, isOpen]);
@@ -77,7 +93,6 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
       if (fetcher.data.success) {
         onClose();
         setFormData(defaultTask);
-        console.log("Success:", fetcher.data.message);
       } else {
         console.error("Error:", fetcher.data.error);
         // TODO: Show error message to user
@@ -93,11 +108,16 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
     e.preventDefault();
     if (!formData.title.trim()) return;
 
-    const submitData = {
-      ...formData,
-      intent: isEditing ? "update" : "create",
-      ...(isEditing && { todoId: todo.$id }),
-    };
+    const submitData: TodoFormPayload = isEditing
+      ? {
+          ...formData,
+          intent: "update",
+          todoId: todo.$id,
+        }
+      : {
+          ...formData,
+          intent: "create",
+        };
 
     await fetcher.submit(submitData, {
       method: "post",
@@ -107,14 +127,33 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
 
   const handleDelete = async () => {
     if (todo?.$id) {
-      await fetcher.submit(
-        { todoId: todo.$id, intent: "delete" },
-        {
-          method: "post",
-          encType: "application/json",
-        }
-      );
+      const submitData: TodoFormPayload = {
+        todoId: todo.$id,
+        intent: "delete",
+      };
+
+      await fetcher.submit(submitData, {
+        method: "post",
+        encType: "application/json",
+      });
     }
+  };
+
+  const addSubtask = () => {
+    console.log("addSubtask - ");
+  };
+
+  const handleUpdateSubTodo = () => {
+    console.log("handleUpdateSubTodo - ");
+  };
+  const toggleSubtask = () => {
+    console.log("toggleSubtask - ");
+  };
+  const removeSubtask = () => {
+    console.log("removeSubtask - ");
+  };
+  const addChildSubtask = () => {
+    console.log("addChildSubtask - ");
   };
 
   return (
@@ -150,25 +189,7 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label
-              htmlFor="description"
-              className="text-sm font-medium text-slate-700"
-            >
-              Description
-            </Label>
-            <Textarea
-              id="description"
-              placeholder="Add more details..."
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              className="border-slate-200 focus:border-slate-300 focus:ring-slate-300 min-h-[80px] resize-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex gap-4">
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
                 Status
@@ -176,7 +197,7 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
               <Select
                 value={formData.status}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, status: value })
+                  setFormData({ ...formData, status: value as TodosStatus })
                 }
               >
                 <SelectTrigger className="border-slate-200">
@@ -198,7 +219,7 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
               <Select
                 value={formData.priority}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, priority: value })
+                  setFormData({ ...formData, priority: value as Priority })
                 }
               >
                 <SelectTrigger className="border-slate-200">
@@ -226,44 +247,106 @@ export default function TaskModal({ isOpen, onClose, todo }: Props) {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-slate-700">
+                Due Date
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal border-slate-200",
+                      !formData.dueDate && "text-slate-500"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.dueDate
+                      ? format(new Date(formData.dueDate), "PPP")
+                      : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    className="w-3xs"
+                    selected={
+                      formData.dueDate ? new Date(formData.dueDate) : undefined
+                    }
+                    onSelect={(date) =>
+                      setFormData({
+                        ...formData,
+                        dueDate: date ? format(date, "yyyy-MM-dd") : "",
+                      })
+                    }
+                    disabled={{ before: new Date() }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-slate-700">
-              Due Date
+            <Label
+              htmlFor="description"
+              className="text-sm font-medium text-slate-700"
+            >
+              Description
             </Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal border-slate-200",
-                    !formData.dueDate && "text-slate-500"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formData.dueDate
-                    ? format(new Date(formData.dueDate), "PPP")
-                    : "Pick a date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  className="w-3xs"
-                  selected={
-                    formData.dueDate ? new Date(formData.dueDate) : undefined
-                  }
-                  onSelect={(date) =>
-                    setFormData({
-                      ...formData,
-                      dueDate: date ? format(date, "yyyy-MM-dd") : "",
-                    })
-                  }
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <Textarea
+              id="description"
+              placeholder="Add more details..."
+              value={formData.description as string || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              className="border-slate-200 focus:border-slate-300 focus:ring-slate-300 min-h-[80px] resize-none"
+            />
+          </div>
+
+          {/* Subtasks */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-slate-700">
+              Subtasks
+            </Label>
+
+            {formData.subtasks?.length > 0 && (
+              <div className="space-y-1 max-h-[200px] overflow-y-auto pr-2">
+                {formData.subtasks.map((subtask) => (
+                  <SubTodoItem
+                    key={subtask.$id}
+                    subtask={subtask}
+                    onToggle={toggleSubtask}
+                    onUpdate={handleUpdateSubTodo}
+                    onRemove={removeSubtask}
+                    onAddChild={addChildSubtask}
+                  />
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              <Input
+                placeholder="Add a subtask..."
+                value={newSubtask}
+                onChange={(e) => setNewSubtask(e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && (e.preventDefault(), addSubtask())
+                }
+                className="border-slate-200 text-sm"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={addSubtask}
+                disabled={!newSubtask.trim()}
+                className="flex-shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
 
           <div className="flex items-center gap-3 pt-2">

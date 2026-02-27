@@ -105,13 +105,13 @@
 - [✅] **Task 10**: Create Todo Form/Modal
 
   - ✅ Modal component
-  - ⏳ Form fields (title, description, dueDate, priority)
-  - ⏳ Date picker integration
+  - ✅ Form fields (title, description, dueDate, priority)
+  - ✅ Date picker integration
 
-- [ ] **Task 11**: Create Todo Action
+- [✅] **Task 11**: Create Todo Action
   - ✅ Server action
   - ✅ Automatic status assignment
-  - ⏳ Optimistic UI updates
+  - ✅ Optimistic UI updates
 
 ### ⏳ Phase 5: List View (1/3)
 

@@ -1,7 +1,8 @@
-import type { Todo, TodoNode } from "~/types/todo";
+import type { Todos } from "~/types/appwrite";
+import type { TodoNode } from "~/types/todo";
 
 
-export function buildTodoTree(todos: Todo[]): TodoNode[] {
+export function buildTodoTree(todos: Todos[]): TodoNode[] {
   const todoMap = new Map<string, TodoNode>();
   
   todos.forEach((todo) => {
@@ -30,13 +31,13 @@ export function buildTodoTree(todos: Todo[]): TodoNode[] {
 }
 
 export function getTodosByParent(
-  todos: Todo[],
+  todos: Todos[],
   parentId: string | null
-): Todo[] {
+): Todos[] {
   return todos.filter((todo) => todo.parentId === parentId);
 }
 
-export function getAllSubtasks(todos: Todo[], todoId: string): Todo[] {
+export function getAllSubtasks(todos: Todos[], todoId: string): Todos[] {
   const directSubtasks = todos.filter((todo) => todo.parentId === todoId);
   const allSubtasks = [...directSubtasks];
 
@@ -48,17 +49,17 @@ export function getAllSubtasks(todos: Todo[], todoId: string): Todo[] {
 }
 
 
-export function countAllSubtasks(todos: Todo[], todoId: string): number {
+export function countAllSubtasks(todos: Todos[], todoId: string): number {
   return getAllSubtasks(todos, todoId).length;
 }
 
-export function countCompletedSubtasks(todos: Todo[], todoId: string): number {
+export function countCompletedSubtasks(todos: Todos[], todoId: string): number {
   const allSubtasks = getAllSubtasks(todos, todoId);
   return allSubtasks.filter((task) => task.status === "completed").length;
 }
 
 export function isAncestor(
-  todos: Todo[],
+  todos: Todos[],
   possibleParentId: string,
   childId: string
 ): boolean {
@@ -78,8 +79,8 @@ export function isAncestor(
   return false;
 }
 
-export function getTodoBreadcrumbs(todos: Todo[], todoId: string): Todo[] {
-  const breadcrumbs: Todo[] = [];
+export function getTodoBreadcrumbs(todos: Todos[], todoId: string): Todos[] {
+  const breadcrumbs: Todos[] = [];
   let currentId: string | null = todoId;
 
   while (currentId) {

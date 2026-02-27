@@ -1,7 +1,22 @@
 import type { Config } from "tailwindcss";
 
+type TailwindConfigWithSafelist = Config & {
+  safelist?: (
+    | string
+    | {
+        pattern: RegExp;
+        variants?: string[];
+      }
+  )[];
+};
+
 export default {
   content: ["./app/**/*.{js,jsx,ts,tsx}"],
+	safelist: [
+		'ml-0', 'ml-2', 'ml-4', 'ml-6', 'ml-8', 'ml-10', 'ml-12', 'ml-14', 'ml-16',
+		{ pattern: /^ml-/ },
+	],
+	
   theme: {
   	extend: {
   		borderRadius: {
@@ -83,7 +98,7 @@ export default {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
   		}
-  	}
+  	},
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config;
+} satisfies TailwindConfigWithSafelist;

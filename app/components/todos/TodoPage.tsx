@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-import type { Todo } from "~/types/todo";
+import type { Todos } from "~/types/appwrite";
 
 import { useViewMode } from "~/contexts/ViewModeContext";
 
@@ -11,13 +11,13 @@ import KanbanBoard from "./KanbanBoard";
 import TodoModal from "./TodoModal";
 
 interface Props {
-  todos: { total: number; rows: Todo[] };
+  todos: { total: number; rows: Todos[] };
 }
 
 export default function TodoPage({ todos }: Props) {
-  const {viewMode} = useViewMode();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+  const { viewMode } = useViewMode();
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [editingTodo, setEditingTodo] = useState<Todos | null>(null);
 
   const todoTree = useMemo(() => buildTodoTree(todos.rows), [todos.rows]);
 
@@ -27,7 +27,7 @@ export default function TodoPage({ todos }: Props) {
     console.log("Toggle Complete Action");
   };
 
-  const handleEdit = (todo: Todo) => {
+  const handleEdit = (todo: Todos) => {
     console.log("Edit Task Action");
     setEditingTodo(todo);
     setModalOpen(true);
