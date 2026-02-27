@@ -2,8 +2,6 @@ import { type LoaderFunctionArgs } from "react-router";
 
 import type { Route } from "./+types/_protected.backlog";
 
-import type { Todo } from "~/types/todo";
-
 import {
   getTodosByStatus,
   createTodo,
@@ -15,6 +13,7 @@ import { getSessionToken, getUserFromSession } from "~/utils/session.server";
 import { createSessionClient } from "~/lib/appwrite.server";
 
 import TodoPage from "../components/todos/TodoPage";
+import type { Todos } from "~/types/appwrite";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -28,7 +27,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const sessionToken = await getSessionToken(request);
     const user = await getUserFromSession(request);
 
-    console.log("session token: ", sessionToken ? sessionToken.substring(0, 15) + "***" : "NONE");
+    console.log(
+      "session token: ",
+      sessionToken ? sessionToken.substring(0, 15) + "***" : "NONE"
+    );
 
     if (sessionToken && user) {
       const { tablesDB } = createSessionClient(sessionToken);
@@ -42,11 +44,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs): Promise<Response> {
-  const user = await getSessionToken(request);
+  const user = await getUserFromSession(request);
   const data = await request.json();
   const { intent, todoId, ...todoData } = data;
 
-  if(!user) throw new Response("Unauthorized", { status: 401 });
+  if (!user) throw new Response("Unauthorized", { status: 401 });
 
   try {
     switch (intent) {

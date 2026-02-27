@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigation } from "react-router";
 
 import type { Todos } from "~/types/appwrite";
 
@@ -21,7 +22,10 @@ export default function TodoPage({ todos }: Props) {
 
   const todoTree = useMemo(() => buildTodoTree(todos.rows), [todos.rows]);
 
-  const isLoading = false;
+  const navigation = useNavigation();
+
+  const isLoading = navigation.state === "loading";
+
 
   const handleToggleComplete = () => {
     console.log("Toggle Complete Action");
