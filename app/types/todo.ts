@@ -1,17 +1,43 @@
 import type { Todos, TodosStatus } from "./appwrite";
 
 export type Priority = "low" | "medium" | "high";
-export type Status = "backlog" | "today" | "upcoming" | "completed";
 export type ViewMode = "list" | "board";
 
-export interface Todo extends Todos {
-  $id: string;
-  $createdAt: string;
-}
-
-export interface TodoNode extends Todo {
+export interface TodoNode extends Todos {
   subtasks: TodoNode[];
 }
+
+export type TaskFormIntent = "create" | "update" | "delete";
+
+export interface TaskFormData {
+  intent: TaskFormIntent;
+  title: string;
+  description: string;
+  status: TodosStatus | "";
+  priority: Priority;
+  dueDate: string;
+  subtasks: TodoNode[];
+}
+
+export interface CreateTodoPayload extends Omit<TaskFormData, "intent" | "subtasks"> {
+  intent: "create";
+  status: TodosStatus;
+}
+
+export interface UpdateTodoPayload extends Partial<Omit<TaskFormData, "intent" | "subtasks">> {
+  intent: "update";
+  todoId: string;
+}
+
+export interface DeleteTodoPayload {
+  intent: "delete";
+  todoId: string;
+}
+
+export type TodoFormPayload =
+  | CreateTodoPayload
+  | UpdateTodoPayload
+  | DeleteTodoPayload;
 
 export interface CreateTodoInput {
   title: string;
@@ -26,7 +52,7 @@ export interface UpdateTodoInput {
   description?: string;
   dueDate?: string;
   priority?: Priority;
-  status?: Status;
+  status?: TodosStatus;
   order?: number;
 }
 

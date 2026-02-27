@@ -6,6 +6,19 @@ import EmptyState from "./EmptyState";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Button } from "~/components/ui/button";
 
+import type { ViewMode, TodoNode } from "~/types/todo";
+
+type Props = {
+  tasks: TodoNode[];
+  isLoading: boolean;
+  onToggleComplete: (id: string) => void;
+  onEdit: (task: any) => void;
+  onDelete: (id: string) => void;
+  onStatusChange: (id: string, status: string) => void;
+  onCreateTask: () => void;
+  activeView: ViewMode;
+};
+
 export default function TodoList({
   tasks,
   isLoading,
@@ -15,7 +28,7 @@ export default function TodoList({
   onStatusChange,
   onCreateTask,
   activeView,
-}) {
+}: Props) {
   if (isLoading) {
     return (
       <div className="space-y-3">

@@ -8,12 +8,11 @@ import {
   ListChecks,
 } from "lucide-react";
 import { format } from "date-fns";
+import { ChevronRightIcon, ChevronDownIcon } from "lucide-react";
 
 import { cn } from "~/lib/utils";
 
-import type { TodoNode } from "~/types/todo";
-
-import { ChevronRightIcon, ChevronDownIcon } from "lucide-react";
+import type { TodoNode, ViewMode } from "~/types/todo";
 
 import {
   DropdownMenu,
@@ -28,7 +27,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
-import { use } from "react";
 
 const priorityConfig = {
   low: { color: "text-slate-400", bg: "bg-slate-100", label: "Low" },
@@ -37,12 +35,13 @@ const priorityConfig = {
 };
 
 type TodoCardProps = {
-  task: TodoNode[];
+  task: TodoNode;
+  nestingLevel: number;
   onToggleComplete: (task: any) => void;
   onEdit: (task: any) => void;
   onDelete: (task: any) => void;
   onStatusChange: (task: any, status: string) => void;
-  variant?: "list" | "kanban";
+  variant?: ViewMode;
 };
 
 const DEFAULT_NESTING_LEVEL = 0;
@@ -61,12 +60,12 @@ export default function TodoCard({
   const nestingClass = `ml-${nestingLevel * 2 + 4}`;
   const [isOpened, setIsOpened] = useState(false);
 
-  const handleToggle = (e) => {
+  const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     onToggleComplete(task);
   };
 
-  if (variant === "kanban") {
+  if (variant === "board") {
     return (
       <div className="group bg-white rounded-xl border border-slate-200/60 p-4 cursor-pointer hover:shadow-md hover:border-slate-300/60 transition-all duration-200">
         <div className="flex items-start gap-3">
@@ -97,8 +96,8 @@ export default function TodoCard({
               {task.subtasks?.length > 0 && (
                 <span className="inline-flex items-center gap-1 text-xs text-slate-500">
                   <ListChecks className="w-3 h-3" />
-                  {task.subtasks.filter((s) => s.completed).length}/
-                  {task.subtasks.length}
+                  {task.subtasks.filter((s) => s.status === "completed").length}
+                  /{task.subtasks.length}
                 </span>
               )}
               {task.dueDate && (
@@ -146,7 +145,11 @@ export default function TodoCard({
                 asChild
                 className="absolute left-0 top-1/2 -translate-y-1/2"
               >
-                <Button variant="ghost" size="icon-xs" className="cursor-pointer">
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="cursor-pointer"
+                >
                   {isOpened ? (
                     <ChevronDownIcon className="transition-transform group-data-[state=open]:rotate-90" />
                   ) : (
@@ -187,7 +190,7 @@ export default function TodoCard({
             {task.subtasks?.length > 0 && (
               <span className="inline-flex items-center gap-1 text-xs text-slate-500">
                 <ListChecks className="w-3 h-3" />
-                {task.subtasks.filter((s) => s.completed).length}/
+                {task.subtasks.filter((s) => s.status === "completed").length}/
                 {task.subtasks.length}
               </span>
             )}

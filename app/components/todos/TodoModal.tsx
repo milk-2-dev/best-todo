@@ -52,7 +52,7 @@ const defaultTask = {
   subtasks: []
 };
 
-export default function TaskModal({ isOpen, onClose, todo }: Props) {
+export default function TodoModal({ isOpen, onClose, todo }: Props) {
   const [formData, setFormData] = useState(defaultTask);
   const [newSubtask, setNewSubtask] = useState('');
   const fetcher = useFetcher({ key: "todo-form" });
