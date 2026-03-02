@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { useNavigation } from "react-router";
+import { useNavigation, useFetcher } from "react-router";
 
-import type { Todos } from "~/types/appwrite";
+import type { Todos, TodosStatus } from "~/types/appwrite";
+import type { TodoFormPayload } from "~/types/todo";
 
 import { useViewMode } from "~/contexts/ViewModeContext";
 
@@ -22,13 +23,24 @@ export default function TodoPage({ todos }: Props) {
 
   const todoTree = useMemo(() => buildTodoTree(todos.rows), [todos.rows]);
 
+  const fetcher = useFetcher();
   const navigation = useNavigation();
 
   const isLoading = navigation.state === "loading";
 
+  const handleToggleComplete = async (todo) => {
+    if (!todo.$id) return;
 
-  const handleToggleComplete = () => {
-    console.log("Toggle Complete Action");
+    const submitData: TodoFormPayload = {
+      intent: "toggleComplete",
+      todoId: todo.$id,
+      status: "completed" as TodosStatus, //!todo.completed
+    };
+
+    await fetcher.submit(submitData, {
+      method: "post",
+      encType: "application/json",
+    });
   };
 
   const handleEdit = (todo: Todos) => {

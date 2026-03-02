@@ -7,9 +7,14 @@ import {
   createTodo,
   updateTodo,
   deleteTodo,
+  toggleTodoComplete,
 } from "~/lib/todos.server";
 
-import { getSessionToken, getUserFromSession } from "~/utils/session.server";
+import {
+  getSessionToken,
+  getUserFromSession,
+  requireUser,
+} from "~/utils/session.server";
 import { createSessionClient } from "~/lib/appwrite.server";
 
 import TodoPage from "../components/todos/TodoPage";
@@ -27,87 +32,103 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const sessionToken = await getSessionToken(request);
     const user = await getUserFromSession(request);
 
-    console.log(
-      "session token: ",
-      sessionToken ? sessionToken.substring(0, 15) + "***" : "NONE"
-    );
+    const { tablesDB } = createSessionClient(sessionToken);
+    const todos = await getTodosByStatus(tablesDB, user.$id, "backlog");
 
-    if (sessionToken && user) {
-      const { tablesDB } = createSessionClient(sessionToken);
-      const todos = await getTodosByStatus(tablesDB, user.$id, "backlog");
-
-      return Response.json({ todos, user });
-    }
+    return Response.json({ todos, user });
   } catch (error) {
     throw new Response("Unauthorized", { status: 401 });
   }
 }
 
 export async function action({ request }: Route.ActionArgs): Promise<Response> {
-  const user = await getUserFromSession(request);
-  const data = await request.json();
-  const { intent, todoId, ...todoData } = data;
-
-  if (!user) throw new Response("Unauthorized", { status: 401 });
+  const user = await requireUser(request);
 
   try {
-    switch (intent) {
-      case "create": {
-        const newTodo = await createTodo(user.$id, data);
+    const sessionToken = await getSessionToken(request);
 
-        return Response.json({
-          success: true,
-          todo: newTodo,
-          message: "Todo created successfully",
-        });
-      }
+    if (sessionToken && user) {
+      const { tablesDB } = createSessionClient(sessionToken);
 
-      case "update": {
-        if (!todoId) {
+      const data = await request.json();
+      const { intent, todoId } = data;
+
+      switch (intent) {
+        case "create": {
+          const newTodo = await createTodo(tablesDB, user.$id, data);
+
+          return Response.json({
+            success: true,
+            todo: newTodo,
+            message: "Todo created successfully",
+          });
+        }
+
+        case "update": {
+          if (!todoId) {
+            return Response.json(
+              {
+                success: false,
+                error: "Todo ID is required",
+              },
+              { status: 400 }
+            );
+          }
+
+          const updatedTodo = await updateTodo(tablesDB, todoId, data);
+
+          return Response.json({
+            success: true,
+            todo: updatedTodo,
+            message: "Todo updated successfully",
+          });
+        }
+
+        case "toggleComplete": {
+          if (!todoId) {
+            return Response.json(
+              {
+                success: false,
+                error: "Todo ID is required",
+              },
+              { status: 400 }
+            );
+          }
+
+          await toggleTodoComplete(tablesDB, todoId, data.status);
+          return Response.json({
+            success: true,
+            message: "Todo complete status changed successfully",
+          });
+        }
+
+        case "delete": {
+          if (!todoId) {
+            return Response.json(
+              {
+                success: false,
+                error: "Todo ID is required",
+              },
+              { status: 400 }
+            );
+          }
+
+          await deleteTodo(tablesDB, todoId);
+          return Response.json({
+            success: true,
+            message: "Todo deleted successfully",
+          });
+        }
+
+        default:
           return Response.json(
             {
               success: false,
-              error: "Todo ID is required",
+              error: "Invalid intent",
             },
             { status: 400 }
           );
-        }
-
-        const updatedTodo = await updateTodo(todoId, data);
-
-        return Response.json({
-          success: true,
-          todo: updatedTodo,
-          message: "Todo updated successfully",
-        });
       }
-
-      case "delete": {
-        if (!todoId) {
-          return Response.json(
-            {
-              success: false,
-              error: "Todo ID is required",
-            },
-            { status: 400 }
-          );
-        }
-
-        await deleteTodo(todoId);
-        return Response.json({
-          success: true,
-          message: "Todo deleted successfully",
-        });
-      }
-
-      default:
-        return Response.json(
-          {
-            success: false,
-            error: "Invalid intent",
-          },
-          { status: 400 }
-        );
     }
   } catch (error) {
     console.error("Todo action error:", error);

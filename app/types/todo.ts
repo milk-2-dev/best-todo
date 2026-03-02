@@ -7,7 +7,7 @@ export interface TodoNode extends Todos {
   subtasks: TodoNode[];
 }
 
-export type TaskFormIntent = "create" | "update" | "delete";
+export type TaskFormIntent = "create" | "update" | "delete" | "toggleComplete";
 
 export interface TaskFormData {
   intent: TaskFormIntent;
@@ -34,10 +34,16 @@ export interface DeleteTodoPayload {
   todoId: string;
 }
 
+export interface ToggleCompleteTodoPayload {
+  intent: "toggleComplete";
+  todoId: string;
+}
+
 export type TodoFormPayload =
   | CreateTodoPayload
   | UpdateTodoPayload
-  | DeleteTodoPayload;
+  | DeleteTodoPayload
+  | ToggleCompleteTodoPayload;
 
 export interface CreateTodoInput {
   title: string;

@@ -1,7 +1,4 @@
-import {
-  DATABASE_ID,
-  TODOS_COLLECTION_ID,
-} from "./appwrite.server";
+import { DATABASE_ID, TODOS_COLLECTION_ID } from "./appwrite.server";
 import { Query, ID } from "node-appwrite";
 import type {
   Todo,
@@ -22,7 +19,10 @@ type Response = {
   rows: Todo[];
 };
 
-export async function getUserTodos(tablesDB, userId: string): Promise<Response> {
+export async function getUserTodos(
+  tablesDB,
+  userId: string
+): Promise<Response> {
   try {
     const response = await tablesDB.listRows({
       ...todosTableCredentials,
@@ -58,9 +58,9 @@ export async function getTodosByStatus(
   }
 }
 
-export async function getSubtasks(parentId: string): Promise<Todo[]> {
+export async function getSubtasks(tablesDB, parentId: string): Promise<Todo[]> {
   try {
-    const response = await databases.listDocuments(
+    const response = await tablesDB.listDocuments(
       DATABASE_ID,
       TODOS_COLLECTION_ID,
       [Query.equal("parentId", parentId), Query.orderAsc("order")]
@@ -74,12 +74,13 @@ export async function getSubtasks(parentId: string): Promise<Todo[]> {
 }
 
 export async function createTodo(
+  tablesDB,
   userId: string,
   input: CreateTodoInput
 ): Promise<Todo> {
   const status = input.dueDate ? determineStatus(input.dueDate) : "backlog";
 
-  const todos = await getUserTodos(userId);
+  const todos = await getUserTodos(tablesDB, userId);
   const maxOrder = todos.rows.reduce(
     (max, todo) => Math.max(max, todo.order),
     0
@@ -105,35 +106,29 @@ export async function createTodo(
 
     console.log("Created todo:", response);
 
-
     return {
       $id: "new-id",
       ...todoData,
       createdAt: new Date().toISOString(),
     } as unknown as Todo;
-
   } catch (error) {
     console.log("Appwrite", "Error: " + error);
   }
 }
 
 export async function updateTodo(
+  tablesDB,
   todoId: string,
   updates: UpdateTodoInput
 ): Promise<Todo> {
-  const { description, dueDate, order, priority, status, title } = updates;
+  // const { description, dueDate, order, priority, status, title } = updates;
 
   try {
     const response = await tablesDB.updateRow({
       ...todosTableCredentials,
       rowId: todoId,
       data: {
-        description,
-        dueDate,
-        order,
-        priority,
-        status,
-        title,
+        ...updates,
       },
     });
 
@@ -144,10 +139,10 @@ export async function updateTodo(
   }
 }
 
-export async function deleteTodo(todoId: string): Promise<void> {
-  const subtasks = await getSubtasks(todoId);
+export async function deleteTodo(tablesDB, todoId: string): Promise<void> {
+  const subtasks = await getSubtasks(tablesDB, todoId);
   for (const subtask of subtasks) {
-    await deleteTodo(subtask.$id);
+    await deleteTodo(tablesDB, subtask.$id);
   }
 
   try {
@@ -162,15 +157,18 @@ export async function deleteTodo(todoId: string): Promise<void> {
 }
 
 export async function toggleTodoComplete(
+  tablesDB,
   todoId: string,
   isCompleted: boolean
 ): Promise<Todo> {
   const updates: UpdateTodoInput = {
-    status: isCompleted ? "completed" : "backlog",
-    completedAt: isCompleted ? new Date().toISOString() : null,
+    // status: isCompleted ? "completed" : "backlog",
+    // completedAt: isCompleted ? new Date().toISOString() : null,
+    status: "completed",
+    $updatedAt: new Date().toISOString(),
   };
 
-  return updateTodo(todoId, updates);
+  return updateTodo(tablesDB, todoId, updates);
 }
 
 export async function updateTodoStatus(
