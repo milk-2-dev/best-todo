@@ -8,19 +8,19 @@ import {
   ListChecks,
 } from "lucide-react";
 import { format } from "date-fns";
-import { ChevronRightIcon, ChevronDownIcon } from "lucide-react";
+import { ChevronRightIcon, ChevronDownIcon, Trash2 } from "lucide-react";
 
 import { cn } from "~/lib/utils";
 
 import type { TodoNode, ViewMode } from "~/types/todo";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "~/components/ui/dropdown-menu";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuTrigger,
+//   DropdownMenuSeparator,
+// } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
 import {
   Collapsible,
@@ -40,7 +40,6 @@ type TodoCardProps = {
   onToggleComplete: (task: any) => void;
   onEdit: (task: any) => void;
   onDelete: (task: any) => void;
-  onStatusChange: (task: any, status: string) => void;
   variant?: ViewMode;
 };
 
@@ -52,10 +51,9 @@ export default function TodoCard({
   onToggleComplete,
   onEdit,
   onDelete,
-  onStatusChange,
   variant = "list",
 }: TodoCardProps) {
-  const isCompleted = task.status === "completed";
+  const isCompleted = task.completed;
   const priority = priorityConfig[task.priority] || priorityConfig.medium;
   const nestingClass = `ml-${nestingLevel * 2 + 4}`;
   const [isOpened, setIsOpened] = useState(false);
@@ -206,7 +204,16 @@ export default function TodoCard({
               <Flag className={cn("w-4 h-4", priority.color)} />
             )}
 
-            <DropdownMenu>
+            <Button
+              className="cursor-pointer text-slate-500 hover:text-red-600 hover:bg-white"
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => onDelete(task)}
+            >
+              <Trash2 />
+            </Button>
+
+            {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
                   onClick={(e) => e.stopPropagation()}
@@ -251,7 +258,7 @@ export default function TodoCard({
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
           </div>
         </div>
 
@@ -267,7 +274,6 @@ export default function TodoCard({
                 variant={variant}
                 onEdit={onEdit}
                 onDelete={onDelete}
-                onStatusChange={onStatusChange}
                 onToggleComplete={onToggleComplete}
               />
             ))}

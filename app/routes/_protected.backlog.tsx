@@ -18,7 +18,6 @@ import {
 import { createSessionClient } from "~/lib/appwrite.server";
 
 import TodoPage from "../components/todos/TodoPage";
-import type { Todos } from "~/types/appwrite";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -95,7 +94,7 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
             );
           }
 
-          await toggleTodoComplete(tablesDB, todoId, data.status);
+          await toggleTodoComplete(tablesDB, todoId, data.completed);
           return Response.json({
             success: true,
             message: "Todo complete status changed successfully",

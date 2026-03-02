@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { useNavigation, useFetcher } from "react-router";
 
-import type { Todos, TodosStatus } from "~/types/appwrite";
-import type { TodoFormPayload } from "~/types/todo";
+import type { Todos } from "~/types/appwrite";
+import type { TodoFormPayload, TodoNode } from "~/types/todo";
 
 import { useViewMode } from "~/contexts/ViewModeContext";
 
@@ -28,13 +28,13 @@ export default function TodoPage({ todos }: Props) {
 
   const isLoading = navigation.state === "loading";
 
-  const handleToggleComplete = async (todo) => {
+  const handleToggleComplete = async (todo: TodoNode) => {
     if (!todo.$id) return;
 
     const submitData: TodoFormPayload = {
       intent: "toggleComplete",
       todoId: todo.$id,
-      status: "completed" as TodosStatus, //!todo.completed
+      completed: !todo.completed
     };
 
     await fetcher.submit(submitData, {
@@ -43,18 +43,13 @@ export default function TodoPage({ todos }: Props) {
     });
   };
 
-  const handleEdit = (todo: Todos) => {
-    console.log("Edit Task Action");
+  const handleEdit = (todo: TodoNode) => {
     setEditingTodo(todo);
     setModalOpen(true);
   };
 
   const handleDelete = () => {
     console.log("Delete Task Action");
-  };
-
-  const handleStatusChange = () => {
-    console.log("Status Change Action");
   };
 
   const handleCreate = () => {
@@ -72,7 +67,6 @@ export default function TodoPage({ todos }: Props) {
             onToggleComplete={handleToggleComplete}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onStatusChange={handleStatusChange}
             onCreateTask={handleCreate}
             activeView={viewMode}
           />
@@ -83,7 +77,6 @@ export default function TodoPage({ todos }: Props) {
             onToggleComplete={handleToggleComplete}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onStatusChange={handleStatusChange}
           />
         )}
       </div>

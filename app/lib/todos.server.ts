@@ -1,11 +1,14 @@
-import { DATABASE_ID, TODOS_COLLECTION_ID } from "./appwrite.server";
 import { Query, ID } from "node-appwrite";
+import { format } from "date-fns";
+
+import { DATABASE_ID, TODOS_COLLECTION_ID } from "./appwrite.server";
+
 import type {
-  Todo,
   CreateTodoInput,
   UpdateTodoInput,
-  Status,
+  TodosStatus,
 } from "~/types/todo";
+import type { Todos } from "~/types/appwrite";
 import { determineStatus } from "./utils";
 
 // @klimov: try this construction
@@ -16,7 +19,7 @@ const todosTableCredentials = {
 
 type Response = {
   total: number;
-  rows: Todo[];
+  rows: Todos[];
 };
 
 export async function getUserTodos(
@@ -39,14 +42,49 @@ export async function getUserTodos(
 export async function getTodosByStatus(
   tablesDB: any,
   userId: string,
-  status: Status
+  status: TodosStatus
 ): Promise<Response> {
   try {
+    let statusQueries = [];
+
+    switch (status) {
+      case "backlog":
+        statusQueries = [
+          Query.equal("completed", false),
+          Query.or([
+            Query.lessThan("dueDate", format(new Date(), "PPP")),
+            Query.isNull("dueDate"),
+          ]),
+        ];
+
+        break;
+      case "today":
+        statusQueries = [
+          Query.equal("completed", false),
+          Query.equal("dueDate", format(new Date(), "PPP")),
+        ];
+        break;
+      case "upcoming":
+        statusQueries = [
+          Query.equal("completed", false),
+          Query.greaterThan("dueDate", format(new Date(), "PPP")),
+        ];
+        break;
+      case "completed":
+        statusQueries = [Query.equal("completed", true)];
+        break;
+
+      default:
+        statusQueries = [];
+        break;
+    }
+
     const response = await tablesDB.listRows({
       ...todosTableCredentials,
       queries: [
         Query.equal("userId", userId),
-        Query.equal("status", status),
+        Query.equal("completed", false),
+        ...statusQueries,
         Query.orderAsc("order"),
       ],
     });
@@ -58,7 +96,10 @@ export async function getTodosByStatus(
   }
 }
 
-export async function getSubtasks(tablesDB, parentId: string): Promise<Todo[]> {
+export async function getSubtasks(
+  tablesDB,
+  parentId: string
+): Promise<Todos[]> {
   try {
     const response = await tablesDB.listDocuments(
       DATABASE_ID,
@@ -66,7 +107,7 @@ export async function getSubtasks(tablesDB, parentId: string): Promise<Todo[]> {
       [Query.equal("parentId", parentId), Query.orderAsc("order")]
     );
 
-    return response.documents as unknown as Todo[];
+    return response.documents as unknown as Todos[];
   } catch (error) {
     console.error("Error fetching subtasks:", error);
     return [];
@@ -77,7 +118,7 @@ export async function createTodo(
   tablesDB,
   userId: string,
   input: CreateTodoInput
-): Promise<Todo> {
+): Promise<Todos> {
   const status = input.dueDate ? determineStatus(input.dueDate) : "backlog";
 
   const todos = await getUserTodos(tablesDB, userId);
@@ -91,7 +132,7 @@ export async function createTodo(
     description: input.description,
     dueDate: input.dueDate,
     priority: input.priority,
-    status,
+    completed: false,
     parentId: input.parentId,
     userId,
     order: maxOrder + 1,
@@ -110,7 +151,7 @@ export async function createTodo(
       $id: "new-id",
       ...todoData,
       createdAt: new Date().toISOString(),
-    } as unknown as Todo;
+    } as unknown as Todos;
   } catch (error) {
     console.log("Appwrite", "Error: " + error);
   }
@@ -120,7 +161,7 @@ export async function updateTodo(
   tablesDB,
   todoId: string,
   updates: UpdateTodoInput
-): Promise<Todo> {
+): Promise<Todos> {
   // const { description, dueDate, order, priority, status, title } = updates;
 
   try {
@@ -132,7 +173,7 @@ export async function updateTodo(
       },
     });
 
-    return response as unknown as Todo;
+    return response as unknown as Todos;
   } catch (error) {
     console.log("Appwrite", "Error: " + error);
     throw error;
@@ -160,20 +201,11 @@ export async function toggleTodoComplete(
   tablesDB,
   todoId: string,
   isCompleted: boolean
-): Promise<Todo> {
+): Promise<Todos> {
   const updates: UpdateTodoInput = {
-    // status: isCompleted ? "completed" : "backlog",
-    // completedAt: isCompleted ? new Date().toISOString() : null,
-    status: "completed",
+    completed: isCompleted,
     $updatedAt: new Date().toISOString(),
   };
 
   return updateTodo(tablesDB, todoId, updates);
-}
-
-export async function updateTodoStatus(
-  todoId: string,
-  newStatus: Status
-): Promise<Todo> {
-  return updateTodo(todoId, { status: newStatus });
 }

@@ -14,7 +14,6 @@ type Props = {
   onToggleComplete: (id: string) => void;
   onEdit: (task: any) => void;
   onDelete: (id: string) => void;
-  onStatusChange: (id: string, status: string) => void;
   onCreateTask: () => void;
   activeView: ViewMode;
 };
@@ -25,7 +24,6 @@ export default function TodoList({
   onToggleComplete,
   onEdit,
   onDelete,
-  onStatusChange,
   onCreateTask,
   activeView,
 }: Props) {
@@ -58,10 +56,10 @@ export default function TodoList({
         <TodoCard
           key={task.$id}
           task={task}
+          nestingLevel={0}
           onToggleComplete={onToggleComplete}
           onEdit={onEdit}
           onDelete={onDelete}
-          onStatusChange={onStatusChange}
           variant="list"
         />
       ))}

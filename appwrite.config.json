@@ -161,6 +161,13 @@
                     "default": null,
                     "min": 0,
                     "max": 9223372036854775807
+                },
+                {
+                    "key": "completed",
+                    "type": "boolean",
+                    "required": true,
+                    "array": false,
+                    "default": null
                 }
             ],
             "indexes": [

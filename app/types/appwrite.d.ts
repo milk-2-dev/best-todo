@@ -25,4 +25,5 @@ export type Todos = Models.Row & {
     parentId: string | null;
     userId: string;
     order: number;
+    completed: boolean;
 }
