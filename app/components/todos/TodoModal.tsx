@@ -58,7 +58,7 @@ const defaultTask = {
   description: "",
   completed: false,
   priority: "low" as Priority,
-  dueDate: "",
+  dueDate: null,
   subtasks: [],
 };
 
@@ -73,7 +73,7 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
       setFormData({
         intent: "update",
         ...todo,
-        dueDate: todo.dueDate || "",
+        dueDate: todo.dueDate || null,
       });
     } else {
       setFormData({
@@ -112,6 +112,8 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
           ...formData,
           intent: "create",
         };
+
+        console.log(submitData)
 
     await fetcher.submit(submitData, {
       method: "post",

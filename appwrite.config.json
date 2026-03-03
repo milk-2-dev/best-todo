@@ -122,20 +122,6 @@
                     ]
                 },
                 {
-                    "key": "status",
-                    "type": "string",
-                    "required": true,
-                    "array": false,
-                    "default": null,
-                    "format": "enum",
-                    "elements": [
-                        "backlog",
-                        "today",
-                        "upcoming",
-                        "completed"
-                    ]
-                },
-                {
                     "key": "parentId",
                     "type": "string",
                     "required": false,
@@ -183,17 +169,6 @@
                     ]
                 },
                 {
-                    "key": "status_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "status"
-                    ],
-                    "orders": [
-                        "asc"
-                    ]
-                },
-                {
                     "key": "parentId_idx",
                     "type": "key",
                     "status": "available",
@@ -201,19 +176,6 @@
                         "parentId"
                     ],
                     "orders": [
-                        "asc"
-                    ]
-                },
-                {
-                    "key": "userId_status_idx",
-                    "type": "key",
-                    "status": "available",
-                    "columns": [
-                        "userId",
-                        "status"
-                    ],
-                    "orders": [
-                        "asc",
                         "asc"
                     ]
                 }

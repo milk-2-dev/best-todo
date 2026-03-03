@@ -54,7 +54,10 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
 
       switch (intent) {
         case "create": {
-          const newTodo = await createTodo(tablesDB, user.$id, data);
+          const newData = { ...data };
+          delete newData.intent;
+
+          const newTodo = await createTodo(tablesDB, user.$id, newData);
 
           return Response.json({
             success: true,
@@ -74,7 +77,12 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
             );
           }
 
-          const updatedTodo = await updateTodo(tablesDB, todoId, data);
+          const newData = { ...data };
+          delete newData.intent;
+          delete newData.subtasks;
+          delete newData.todoId;
+
+          const updatedTodo = await updateTodo(tablesDB, todoId, newData);
 
           return Response.json({
             success: true,

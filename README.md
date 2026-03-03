@@ -126,10 +126,10 @@
   - ✅ Status-based filtering
   - ✅ Loading states
 
-- [ ] **Task 14**: List View - Basic Interactions
+- [✅] **Task 14**: List View - Basic Interactions
   - ✅ Toggle completion
-  - ⏳ Delete task
-  - ⏳ UI updates
+  - ✅ Delete task
+  - ✅ UI updates
 
 ### ⏳ Phase 6: Board View (2/2)
 

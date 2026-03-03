@@ -22,6 +22,11 @@ type Response = {
   rows: Todos[];
 };
 
+type DelteTodoResponse = {
+  success: boolean;
+};
+
+
 export async function getUserTodos(
   tablesDB,
   userId: string
@@ -101,11 +106,10 @@ export async function getSubtasks(
   parentId: string
 ): Promise<Todos[]> {
   try {
-    const response = await tablesDB.listDocuments(
-      DATABASE_ID,
-      TODOS_COLLECTION_ID,
-      [Query.equal("parentId", parentId), Query.orderAsc("order")]
-    );
+    const response = await tablesDB.listRows({
+      ...todosTableCredentials,
+      queries: [Query.equal("parentId", parentId), Query.orderAsc("order")],
+    });
 
     return response.documents as unknown as Todos[];
   } catch (error) {
@@ -119,8 +123,6 @@ export async function createTodo(
   userId: string,
   input: CreateTodoInput
 ): Promise<Todos> {
-  const status = input.dueDate ? determineStatus(input.dueDate) : "backlog";
-
   const todos = await getUserTodos(tablesDB, userId);
   const maxOrder = todos.rows.reduce(
     (max, todo) => Math.max(max, todo.order),
@@ -145,15 +147,13 @@ export async function createTodo(
       data: todoData,
     });
 
-    console.log("Created todo:", response);
-
     return {
       $id: "new-id",
       ...todoData,
       createdAt: new Date().toISOString(),
     } as unknown as Todos;
   } catch (error) {
-    console.log("Appwrite", "Error: " + error);
+    throw error;
   }
 }
 
@@ -162,8 +162,6 @@ export async function updateTodo(
   todoId: string,
   updates: UpdateTodoInput
 ): Promise<Todos> {
-  // const { description, dueDate, order, priority, status, title } = updates;
-
   try {
     const response = await tablesDB.updateRow({
       ...todosTableCredentials,
@@ -180,17 +178,23 @@ export async function updateTodo(
   }
 }
 
-export async function deleteTodo(tablesDB, todoId: string): Promise<void> {
+export async function deleteTodo(tablesDB, todoId: string): Promise<DelteTodoResponse> {
   const subtasks = await getSubtasks(tablesDB, todoId);
-  for (const subtask of subtasks) {
-    await deleteTodo(tablesDB, subtask.$id);
-  }
 
+  if(subtasks) {
+    console.log(`Deleting ${subtasks.length} subtasks of todo ${todoId}`);
+    for (const subtask of subtasks) {
+      await deleteTodo(tablesDB, subtask.$id);
+    }
+  }
+  
   try {
     const response = await tablesDB.deleteRow({
       ...todosTableCredentials,
       rowId: todoId,
     });
+
+    return response as unknown as DelteTodoResponse;
   } catch (error) {
     console.log("Appwrite", "Error: " + error);
     throw error;

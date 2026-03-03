@@ -24,6 +24,7 @@ export default function TodoPage({ todos }: Props) {
   const todoTree = useMemo(() => buildTodoTree(todos.rows), [todos.rows]);
 
   const fetcher = useFetcher();
+  const deleteTodoFetcher = useFetcher({key: "deleteTodo"});
   const navigation = useNavigation();
 
   const isLoading = navigation.state === "loading";
@@ -48,8 +49,18 @@ export default function TodoPage({ todos }: Props) {
     setModalOpen(true);
   };
 
-  const handleDelete = () => {
-    console.log("Delete Task Action");
+  const handleDelete = async (todoId) => {
+    if (!todoId) return;
+
+    const submitData: TodoFormPayload = {
+      intent: "delete",
+      todoId
+    };
+
+    await deleteTodoFetcher.submit(submitData, {
+      method: "post",
+      encType: "application/json",
+    });
   };
 
   const handleCreate = () => {
