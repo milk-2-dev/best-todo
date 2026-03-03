@@ -4,8 +4,6 @@ import { format } from "date-fns";
 
 import { cn } from "~/lib/utils";
 
-import { useNavItems } from "~/hooks/useNavItems";
-
 import type {
   TodoNode,
   TodoFormPayload,
@@ -13,7 +11,6 @@ import type {
   TaskFormIntent,
   Priority,
 } from "~/types/todo";
-import type { TodosStatus } from "~/types/appwrite";
 
 import {
   Calendar as CalendarIcon,
@@ -59,9 +56,9 @@ const defaultTask = {
   intent: "create" as TaskFormIntent,
   title: "",
   description: "",
-  status: "backlog" as TodosStatus,
+  completed: false,
   priority: "low" as Priority,
-  dueDate: "",
+  dueDate: null,
   subtasks: [],
 };
 
@@ -71,19 +68,16 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
   const fetcher = useFetcher({ key: "todo-form" });
   const isEditing = !!todo?.$id;
 
-  const { activeNavItem } = useNavItems();
-
   useEffect(() => {
     if (todo) {
       setFormData({
         intent: "update",
         ...todo,
-        dueDate: todo.dueDate || "",
+        dueDate: todo.dueDate || null,
       });
     } else {
       setFormData({
         ...defaultTask,
-        status: activeNavItem?.id as TodosStatus || "backlog",
       });
     }
   }, [todo, isOpen]);
@@ -118,6 +112,8 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
           ...formData,
           intent: "create",
         };
+
+        console.log(submitData)
 
     await fetcher.submit(submitData, {
       method: "post",
@@ -190,28 +186,6 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
           </div>
 
           <div className="flex gap-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">
-                Status
-              </Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, status: value as TodosStatus })
-                }
-              >
-                <SelectTrigger className="border-slate-200">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="backlog">Backlog</SelectItem>
-                  <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="upcoming">Upcoming</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
                 Priority
@@ -297,7 +271,7 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
             <Textarea
               id="description"
               placeholder="Add more details..."
-              value={formData.description as string || ""}
+              value={(formData.description as string) || ""}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }

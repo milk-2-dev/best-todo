@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useFetcher } from "react-router";
 import {
   Calendar,
   Flag,
@@ -8,19 +9,30 @@ import {
   ListChecks,
 } from "lucide-react";
 import { format } from "date-fns";
-import { ChevronRightIcon, ChevronDownIcon } from "lucide-react";
+import { ChevronRightIcon, ChevronDownIcon, Trash2 } from "lucide-react";
 
 import { cn } from "~/lib/utils";
 
 import type { TodoNode, ViewMode } from "~/types/todo";
 
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuTrigger,
+//   DropdownMenuSeparator,
+// } from "~/components/ui/dropdown-menu";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "~/components/ui/dropdown-menu";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import {
   Collapsible,
@@ -40,7 +52,6 @@ type TodoCardProps = {
   onToggleComplete: (task: any) => void;
   onEdit: (task: any) => void;
   onDelete: (task: any) => void;
-  onStatusChange: (task: any, status: string) => void;
   variant?: ViewMode;
 };
 
@@ -52,13 +63,23 @@ export default function TodoCard({
   onToggleComplete,
   onEdit,
   onDelete,
-  onStatusChange,
   variant = "list",
 }: TodoCardProps) {
-  const isCompleted = task.status === "completed";
+  const isCompleted = task.completed;
   const priority = priorityConfig[task.priority] || priorityConfig.medium;
   const nestingClass = `ml-${nestingLevel * 2 + 4}`;
   const [isOpened, setIsOpened] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeletingCurrentTodo, setIsDeletingCurrentTodo] = useState(false);
+  const deleteTodoFetcher = useFetcher({key: "deleteTodo"});
+
+  useEffect(() => {
+    if (deleteTodoFetcher.state === "submitting") {
+      setIsDeleting(true);
+    } else if (deleteTodoFetcher.state === "idle" && deleteTodoFetcher.data) {
+      setIsDeleting(false);
+    }
+  }, [deleteTodoFetcher.state, deleteTodoFetcher.data]);
 
   const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -129,13 +150,19 @@ export default function TodoCard({
     setIsOpened(isOpen);
   };
 
+  const handleTodoDelete = (todoId) => {
+    setIsDeletingCurrentTodo(true);
+    onDelete(todoId);
+  }
+
   return (
     <Collapsible key={task.$id} onOpenChange={handleCollapsibleChanged}>
       <div
         className={cn(
           "group  bg-white transition-all duration-200",
           nestingLevel === DEFAULT_NESTING_LEVEL &&
-            "py-3.5 px-4 border border-slate-200/60 rounded-xl hover:shadow-md hover:border-slate-300/60"
+            "py-3.5 px-4 border border-slate-200/60 rounded-xl hover:shadow-md hover:border-slate-300/60",
+            isDeleting && isDeletingCurrentTodo && "opacity-50 scale-95 pointer-events-none"
         )}
       >
         <div className="flex items-center gap-4">
@@ -206,7 +233,32 @@ export default function TodoCard({
               <Flag className={cn("w-4 h-4", priority.color)} />
             )}
 
-            <DropdownMenu>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  className="cursor-pointer text-slate-500 hover:text-red-600 hover:bg-white"
+                  variant="ghost"
+                  size="icon-xs"
+                >
+                  <Trash2 />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    your account from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => handleTodoDelete(task.$id)}>Continue</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
                   onClick={(e) => e.stopPropagation()}
@@ -251,7 +303,7 @@ export default function TodoCard({
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
           </div>
         </div>
 
@@ -267,7 +319,6 @@ export default function TodoCard({
                 variant={variant}
                 onEdit={onEdit}
                 onDelete={onDelete}
-                onStatusChange={onStatusChange}
                 onToggleComplete={onToggleComplete}
               />
             ))}

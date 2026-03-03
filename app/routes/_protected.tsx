@@ -78,32 +78,6 @@ export default function ProtectedLayout({ loaderData }: Route.ComponentProps) {
 
             <div className="flex items-center gap-3">
               <ViewToggle view={viewMode} onViewChange={setViewMode} />
-              {/* <Button
-                    onClick={handleCreateTask}
-                    size="sm"
-                    className="bg-slate-900 hover:bg-slate-800 text-white hidden sm:flex"
-                  >
-                    <Plus className="w-4 h-4 mr-1.5" />
-                    Add Task
-                  </Button>
-                  <Button
-                    onClick={handleCreateTask}
-                    size="icon"
-                    className="bg-slate-900 hover:bg-slate-800 text-white sm:hidden"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button> */}
-
-              {/* Logout */}
-              {/* <Form method="post" action="/logout">
-                    <button
-                      type="submit"
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span className="hidden sm:inline">Logout</span>
-                    </button>
-                  </Form> */}
             </div>
           </div>
         </header>
@@ -111,19 +85,6 @@ export default function ProtectedLayout({ loaderData }: Route.ComponentProps) {
         {/* Content */}
         <Outlet />
       </main>
-
-      {/* Task Modal */}
-      {/* <TaskModal
-            open={modalOpen}
-            onClose={() => {
-              setModalOpen(false);
-              setSelectedTask(null);
-            }}
-            task={selectedTask}
-            onSave={handleSaveTask}
-            onDelete={handleDeleteTask}
-            isSaving={createMutation.isPending || updateMutation.isPending}
-          /> */}
 
       {/* Mobile Overlay */}
       {/* {sidebarOpen && (

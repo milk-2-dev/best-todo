@@ -121,15 +121,15 @@
   - ✅ Priority & date badges
   - ✅ Checkbox for completion
 
-- [ ] **Task 13**: List View - Data Loading
-  - ⏳ Loader functions per route
+- [✅] **Task 13**: List View - Data Loading
+  - ✅ Loader functions per route
   - ✅ Status-based filtering
-  - ⏳ Loading states
+  - ✅ Loading states
 
-- [ ] **Task 14**: List View - Basic Interactions
-  - ⏳ Toggle completion
-  - ⏳ Delete task
-  - ⏳ UI updates
+- [✅] **Task 14**: List View - Basic Interactions
+  - ✅ Toggle completion
+  - ✅ Delete task
+  - ✅ UI updates
 
 ### ⏳ Phase 6: Board View (2/2)
 
