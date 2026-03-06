@@ -157,9 +157,9 @@
 
 ### ⏳ Phase 8: Task Details Modal (0/3)
 
-- [ ] **Task 19**: Todo Details Modal - UI
-  - ⏳ Modal component
-  - ⏳ Full task info display
+- [✅] **Task 19**: Todo Details Modal - UI
+  - ✅ Modal component
+  - ✅ Full task info display
   - ⏳ Subtasks list
 
 - [ ] **Task 20**: Todo Details Modal - Edit

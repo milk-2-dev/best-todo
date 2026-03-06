@@ -26,10 +26,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
+import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
-import { Label } from "~/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -113,8 +113,6 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
           intent: "create",
         };
 
-        console.log(submitData)
-
     await fetcher.submit(submitData, {
       method: "post",
       encType: "application/json",
@@ -185,43 +183,25 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
             />
           </div>
 
-          <div className="flex gap-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">
-                Priority
-              </Label>
-              <Select
-                value={formData.priority}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, priority: value as Priority })
-                }
-              >
-                <SelectTrigger className="border-slate-200">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">
-                    <span className="flex items-center gap-2">
-                      <Flag className="w-3.5 h-3.5 text-slate-400" />
-                      Low
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="medium">
-                    <span className="flex items-center gap-2">
-                      <Flag className="w-3.5 h-3.5 text-amber-500" />
-                      Medium
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="high">
-                    <span className="flex items-center gap-2">
-                      <Flag className="w-3.5 h-3.5 text-red-500" />
-                      High
-                    </span>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label
+              htmlFor="description"
+              className="text-sm font-medium text-slate-700"
+            >
+              Description
+            </Label>
+            <Textarea
+              id="description"
+              placeholder="Add more details..."
+              value={(formData.description as string) || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              className="border-slate-200 focus:border-slate-300 focus:ring-slate-300 min-h-[80px] resize-none"
+            />
+          </div>
 
+          <div className="flex gap-4">
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">
                 Due Date
@@ -259,25 +239,45 @@ export default function TodoModal({ isOpen, onClose, todo }: Props) {
                 </PopoverContent>
               </Popover>
             </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-slate-700">
+                Priority
+              </Label>
+              <Select
+                value={formData.priority}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, priority: value as Priority })
+                }
+              >
+                <SelectTrigger className="border-slate-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">
+                    <span className="flex items-center gap-2">
+                      <Flag className="w-3.5 h-3.5 text-slate-400" />
+                      Low
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="medium">
+                    <span className="flex items-center gap-2">
+                      <Flag className="w-3.5 h-3.5 text-amber-500" />
+                      Medium
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="high">
+                    <span className="flex items-center gap-2">
+                      <Flag className="w-3.5 h-3.5 text-red-500" />
+                      High
+                    </span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label
-              htmlFor="description"
-              className="text-sm font-medium text-slate-700"
-            >
-              Description
-            </Label>
-            <Textarea
-              id="description"
-              placeholder="Add more details..."
-              value={(formData.description as string) || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              className="border-slate-200 focus:border-slate-300 focus:ring-slate-300 min-h-[80px] resize-none"
-            />
-          </div>
+          <div className="border-t-2 border-gray-100"></div>
 
           {/* Subtasks */}
           <div className="space-y-2">

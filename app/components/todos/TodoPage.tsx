@@ -19,15 +19,26 @@ interface Props {
 export default function TodoPage({ todos }: Props) {
   const { viewMode } = useViewMode();
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [formOpen, setFormOpen] = useState<boolean>(false);
   const [editingTodo, setEditingTodo] = useState<Todos | null>(null);
 
   const todoTree = useMemo(() => buildTodoTree(todos.rows), [todos.rows]);
 
   const fetcher = useFetcher();
-  const deleteTodoFetcher = useFetcher({key: "deleteTodo"});
+  const deleteTodoFetcher = useFetcher({ key: "deleteTodo" });
   const navigation = useNavigation();
 
   const isLoading = navigation.state === "loading";
+
+  const handleCreate = () => {
+    setEditingTodo(null);
+    setFormOpen(true);
+  };
+
+  const handleEdit = (todo: TodoNode) => {
+    setEditingTodo(todo);
+    setFormOpen(true);
+  };
 
   const handleToggleComplete = async (todo: TodoNode) => {
     if (!todo.$id) return;
@@ -35,7 +46,7 @@ export default function TodoPage({ todos }: Props) {
     const submitData: TodoFormPayload = {
       intent: "toggleComplete",
       todoId: todo.$id,
-      completed: !todo.completed
+      completed: !todo.completed,
     };
 
     await fetcher.submit(submitData, {
@@ -44,28 +55,18 @@ export default function TodoPage({ todos }: Props) {
     });
   };
 
-  const handleEdit = (todo: TodoNode) => {
-    setEditingTodo(todo);
-    setModalOpen(true);
-  };
-
   const handleDelete = async (todoId) => {
     if (!todoId) return;
 
     const submitData: TodoFormPayload = {
       intent: "delete",
-      todoId
+      todoId,
     };
 
     await deleteTodoFetcher.submit(submitData, {
       method: "post",
       encType: "application/json",
     });
-  };
-
-  const handleCreate = () => {
-    setEditingTodo(null);
-    setModalOpen(true);
   };
 
   return (
@@ -76,6 +77,9 @@ export default function TodoPage({ todos }: Props) {
             tasks={todoTree}
             isLoading={isLoading}
             onToggleComplete={handleToggleComplete}
+            isFormOpen={formOpen}
+            editedId={editingTodo ? editingTodo.$id : null}
+            onFormClose={() => setFormOpen(false)}
             onEdit={handleEdit}
             onDelete={handleDelete}
             onCreateTask={handleCreate}
@@ -92,11 +96,11 @@ export default function TodoPage({ todos }: Props) {
         )}
       </div>
 
-      <TodoModal
+      {/* <TodoModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         todo={editingTodo}
-      />
+      /> */}
     </div>
   );
 }
