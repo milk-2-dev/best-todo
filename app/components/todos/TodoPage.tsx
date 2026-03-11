@@ -10,7 +10,7 @@ import { buildTodoTree } from "~/lib/todoTreeUtils";
 
 import TodoList from "./TodoList";
 import KanbanBoard from "./KanbanBoard";
-import TodoModal from "./TodoModal";
+import TodoDetailsModal from "./TodoDetailsModal";
 
 interface Props {
   todos: { total: number; rows: Todos[] };
@@ -21,6 +21,7 @@ export default function TodoPage({ todos }: Props) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [formOpen, setFormOpen] = useState<boolean>(false);
   const [editingTodo, setEditingTodo] = useState<Todos | null>(null);
+  const [todoDetails, setTodoDetails] = useState<Todos | null>(null);
 
   const todoTree = useMemo(() => buildTodoTree(todos.rows), [todos.rows]);
 
@@ -69,6 +70,11 @@ export default function TodoPage({ todos }: Props) {
     });
   };
 
+  const handleShowTodoDetails = (todo: TodoNode) => {
+    setTodoDetails(todo);
+    setModalOpen(true);
+  };
+
   return (
     <div className="p-8">
       <div className="flex-1 overflow-auto p-4 lg:p-8">
@@ -83,6 +89,7 @@ export default function TodoPage({ todos }: Props) {
             onEdit={handleEdit}
             onDelete={handleDelete}
             onCreateTask={handleCreate}
+            onShowDetails={handleShowTodoDetails}
             activeView={viewMode}
           />
         ) : (
@@ -96,11 +103,12 @@ export default function TodoPage({ todos }: Props) {
         )}
       </div>
 
-      {/* <TodoModal
+      <TodoDetailsModal
         isOpen={modalOpen}
+        todo={todoDetails}
+        onShowDetails={handleShowTodoDetails}
         onClose={() => setModalOpen(false)}
-        todo={editingTodo}
-      /> */}
+      />
     </div>
   );
 }

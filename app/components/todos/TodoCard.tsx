@@ -57,6 +57,7 @@ type TodoCardProps = {
   editedId: string | null;
   onEdit: (todo: any) => void;
   onDelete: (todo: any) => void;
+  onShowDetails: (todo: any) => void;
   variant?: ViewMode;
 };
 
@@ -71,6 +72,7 @@ export default function TodoCard({
   editedId,
   onEdit,
   onDelete,
+  onShowDetails,
   variant = "list",
 }: TodoCardProps) {
   const isCompleted = todo.completed;
@@ -113,7 +115,7 @@ export default function TodoCard({
 
           <div className="flex-1 min-w-0">
             <p
-              onClick={() => onEdit(todo)}
+              onClick={(todo) => onShowDetails(todo)}
               className={cn(
                 "text-sm font-medium text-slate-900 leading-snug hover:under",
                 isCompleted && "line-through text-slate-400"
@@ -213,7 +215,7 @@ export default function TodoCard({
 
             <div className="flex-1 min-w-0">
               <p
-                onClick={() => onEdit(todo)}
+                onClick={() => onShowDetails(todo)}
                 className={cn(
                   "text-sm font-medium text-slate-900 hover:underline cursor-pointer",
                   isCompleted && "line-through text-slate-400"
