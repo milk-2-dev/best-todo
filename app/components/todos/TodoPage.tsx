@@ -23,8 +23,6 @@ export default function TodoPage({ todos }: Props) {
   const [editingTodo, setEditingTodo] = useState<Todos | null>(null);
   const [todoDetails, setTodoDetails] = useState<Todos | null>(null);
 
-  const todoTree = useMemo(() => buildTodoTree(todos.rows), [todos.rows]);
-
   const fetcher = useFetcher();
   const deleteTodoFetcher = useFetcher({ key: "deleteTodo" });
   const navigation = useNavigation();
@@ -80,7 +78,7 @@ export default function TodoPage({ todos }: Props) {
       <div className="flex-1 overflow-auto p-4 lg:p-8">
         {viewMode === "list" ? (
           <TodoList
-            tasks={todoTree}
+            tasks={todos}
             isLoading={isLoading}
             onToggleComplete={handleToggleComplete}
             isFormOpen={formOpen}
@@ -94,7 +92,7 @@ export default function TodoPage({ todos }: Props) {
           />
         ) : (
           <KanbanBoard
-            tasks={todoTree}
+            tasks={todos}
             isLoading={isLoading}
             onToggleComplete={handleToggleComplete}
             onEdit={handleEdit}

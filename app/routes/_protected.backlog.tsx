@@ -3,7 +3,7 @@ import { type LoaderFunctionArgs } from "react-router";
 import type { Route } from "./+types/_protected.backlog";
 
 import {
-  getTodosByStatus,
+  getTodosTree,
   createTodo,
   updateTodo,
   deleteTodo,
@@ -32,7 +32,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const user = await getUserFromSession(request);
 
     const { tablesDB } = createSessionClient(sessionToken);
-    const todos = await getTodosByStatus(tablesDB, user.$id, "backlog");
+    const todos = await getTodosTree(tablesDB, user.$id, "backlog");
 
     return Response.json({ todos, user });
   } catch (error) {
