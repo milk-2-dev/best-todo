@@ -53,7 +53,7 @@ import TodoForm from "./TodoForm";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  todo: TodoNode;
+  todo: TodoNode | null;
 }
 
 const defaultTask = {
@@ -72,12 +72,7 @@ const priorityConfig = {
   high: { color: "text-red-600", bg: "bg-red-50", label: "High" },
 };
 
-export default function TodoDetailsModal({
-  isOpen,
-  onClose,
-  todo,
-  onShowDetails,
-}: Props) {
+export default function TodoDetailsModal({ isOpen, onClose, todo }: Props) {
   if (!todo) return null;
 
   const isCompleted = useMemo(() => todo?.completed, [todo]);

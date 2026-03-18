@@ -17,7 +17,8 @@ interface Props {
 }
 
 export default function TodoPage() {
-  const todos = useTodoStore((state) => state.todos);
+  const { todos, selectedTodo, isOpenTodoDetails, setTodoDetailsOpen } =
+    useTodoStore();
   const isLoading = useTodoStore((s) => s.isLoading);
 
   const { viewMode } = useViewMode();
@@ -54,7 +55,7 @@ export default function TodoPage() {
     });
   };
 
-  const handleDelete = async (todoId) => {
+  const handleDelete = async (todoId: string) => {
     if (!todoId) return;
 
     const submitData: TodoFormPayload = {
@@ -66,11 +67,6 @@ export default function TodoPage() {
       method: "post",
       encType: "application/json",
     });
-  };
-
-  const handleShowTodoDetails = (todo: TodoNode) => {
-    setTodoDetails(todo);
-    setModalOpen(true);
   };
 
   return (
@@ -87,7 +83,6 @@ export default function TodoPage() {
             onEdit={handleEdit}
             onDelete={handleDelete}
             onCreateTask={handleCreate}
-            onShowDetails={handleShowTodoDetails}
             activeView={viewMode}
           />
         ) : (
@@ -102,10 +97,9 @@ export default function TodoPage() {
       </div>
 
       <TodoDetailsModal
-        isOpen={modalOpen}
-        todo={todoDetails}
-        onShowDetails={handleShowTodoDetails}
-        onClose={() => setModalOpen(false)}
+        isOpen={isOpenTodoDetails}
+        todo={selectedTodo}
+        onClose={() => setTodoDetailsOpen(false)}
       />
     </div>
   );

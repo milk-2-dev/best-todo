@@ -16,6 +16,8 @@ import { cn } from "~/lib/utils";
 
 import type { TodoNode, ViewMode } from "~/types/todo";
 
+import { useTodoStore } from "~/store/todoStore";
+
 // import {
 //   DropdownMenu,
 //   DropdownMenuContent,
@@ -57,7 +59,6 @@ type TodoCardProps = {
   editedId: string | null;
   onEdit: (todo: any) => void;
   onDelete: (todo: any) => void;
-  onShowDetails: (todo: any) => void;
   variant?: ViewMode;
 };
 
@@ -72,9 +73,9 @@ export default function TodoCard({
   editedId,
   onEdit,
   onDelete,
-  onShowDetails,
   variant = "list",
 }: TodoCardProps) {
+  const { setSelectedTodo, setTodoDetailsOpen } = useTodoStore();
   const isCompleted = todo.completed;
   const priority = priorityConfig[todo.priority] || priorityConfig.medium;
   const nestingClass = `ml-${nestingLevel * 2 + 4}`;
@@ -101,6 +102,11 @@ export default function TodoCard({
     onToggleComplete(todo);
   };
 
+  const handleShowDetails = (todo: TodoNode) => {
+    setSelectedTodo(todo);
+    setTodoDetailsOpen(true);
+  };
+
   if (variant === "board") {
     return (
       <div className="group bg-white rounded-xl border border-slate-200/60 p-4 cursor-pointer hover:shadow-md hover:border-slate-300/60 transition-all duration-200">
@@ -115,7 +121,7 @@ export default function TodoCard({
 
           <div className="flex-1 min-w-0">
             <p
-              onClick={(todo) => onShowDetails(todo)}
+              onClick={(todo) => handleShowDetails(todo)}
               className={cn(
                 "text-sm font-medium text-slate-900 leading-snug hover:under",
                 isCompleted && "line-through text-slate-400"
@@ -215,7 +221,7 @@ export default function TodoCard({
 
             <div className="flex-1 min-w-0">
               <p
-                onClick={() => onShowDetails(todo)}
+                onClick={() => handleShowDetails(todo)}
                 className={cn(
                   "text-sm font-medium text-slate-900 hover:underline cursor-pointer",
                   isCompleted && "line-through text-slate-400"

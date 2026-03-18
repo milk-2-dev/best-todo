@@ -34,7 +34,6 @@ export default function TodoList({
   editedId,
   onDelete,
   onCreateTask,
-  onShowDetails,
   activeView,
 }: Props) {
   const isCreatingNewTodo = useMemo(
@@ -78,7 +77,6 @@ export default function TodoList({
           editedId={editedId}
           onEdit={onEdit}
           onDelete={onDelete}
-          onShowDetails={onShowDetails}
           variant="list"
         />
       ))}
