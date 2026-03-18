@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigation, useFetcher } from "react-router";
 
 import type { Todos } from "~/types/appwrite";
@@ -6,7 +6,7 @@ import type { TodoFormPayload, TodoNode } from "~/types/todo";
 
 import { useViewMode } from "~/contexts/ViewModeContext";
 
-import { buildTodoTree } from "~/lib/todoTreeUtils";
+import { useTodoStore } from "~/store/todoStore";
 
 import TodoList from "./TodoList";
 import KanbanBoard from "./KanbanBoard";
@@ -16,7 +16,10 @@ interface Props {
   todos: { total: number; rows: Todos[] };
 }
 
-export default function TodoPage({ todos }: Props) {
+export default function TodoPage() {
+  const todos = useTodoStore((state) => state.todos);
+  const isLoading = useTodoStore((s) => s.isLoading);
+
   const { viewMode } = useViewMode();
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [formOpen, setFormOpen] = useState<boolean>(false);
@@ -25,9 +28,6 @@ export default function TodoPage({ todos }: Props) {
 
   const fetcher = useFetcher();
   const deleteTodoFetcher = useFetcher({ key: "deleteTodo" });
-  const navigation = useNavigation();
-
-  const isLoading = navigation.state === "loading";
 
   const handleCreate = () => {
     setEditingTodo(null);

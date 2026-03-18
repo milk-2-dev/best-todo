@@ -1,7 +1,7 @@
 import type { Todos } from "~/types/appwrite";
 import type { TodoNode } from "~/types/todo";
 
-
+// TODO: @Klim remove this method later
 export function buildTodoTree(todos: Todos[]): TodoNode[] {
   const todoMap = new Map<string, TodoNode>();
   

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { type LoaderFunctionArgs } from "react-router";
 
 import type { Route } from "./+types/_protected.backlog";
@@ -16,6 +17,8 @@ import {
   requireUser,
 } from "~/utils/session.server";
 import { createSessionClient } from "~/lib/appwrite.server";
+
+import { useTodoStore } from "~/store/todoStore";
 
 import TodoPage from "../components/todos/TodoPage";
 
@@ -40,7 +43,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 }
 
-export async function action({ request }: Route.ActionArgs): Promise<Response> {
+export async function action({ request }: Route.ActionArgs) {
   const user = await requireUser(request);
 
   try {
@@ -151,6 +154,12 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
 
 export default function Backlog({ loaderData }: Route.ComponentProps) {
   const { todos } = loaderData;
+  const { setTodos, setIsLoading } = useTodoStore();
 
-  return <TodoPage todos={todos} />;
+  useEffect(() => {
+    setTodos(todos);
+    setIsLoading(false);
+  }, [todos]);
+
+  return <TodoPage />;
 }

@@ -1,9 +1,11 @@
 import { create } from "zustand";
-import type { Todo } from "~/types/todo";
+import type { TodoNode } from "~/types/todo";
 
 interface TodoStore {
-  todos: Todo[];
-  addTodo: (title: string) => void;
+  todos: TodoNode[];
+  isLoading: boolean;
+  setTodos: (todos: TodoNode[]) => void;
+  setIsLoading: (isLoading: boolean) => void;
   removeTodo: (id: string) => void;
   toggleTodo: (id: string) => void;
   updateTodo: (id: string, title: string) => void;
@@ -12,19 +14,10 @@ interface TodoStore {
 
 export const useTodoStore = create<TodoStore>((set) => ({
   todos: [],
+  isLoading: true,
 
-  addTodo: (title) =>
-    set((state) => ({
-      todos: [
-        ...state.todos,
-        {
-          id: crypto.randomUUID(),
-          title,
-          completed: false,
-          createdAt: new Date(),
-        },
-      ],
-    })),
+  setTodos: (todos: TodoNode[]) => set({ todos }),
+  setIsLoading: (isLoading: boolean) => set({ isLoading }),
 
   removeTodo: (id) =>
     set((state) => ({
