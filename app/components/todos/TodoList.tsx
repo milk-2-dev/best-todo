@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Plus } from "lucide-react";
 
 import TodoCard from "./TodoCard";
 import EmptyState from "./EmptyState";
 
 import type { ViewMode, TodoNode } from "~/types/todo";
+
+import { useTodoStore } from "~/store/todoStore";
 
 import TodoForm from "./TodoForm";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -36,10 +38,7 @@ export default function TodoList({
   onCreateTask,
   activeView,
 }: Props) {
-  const isCreatingNewTodo = useMemo(
-    () => isFormOpen && !editedId,
-    [isFormOpen, editedId]
-  );
+  const { isOpenTodoForm, setSelectedTodo, setTodoFormOpen } = useTodoStore();
 
   if (isLoading) {
     return (
@@ -64,6 +63,16 @@ export default function TodoList({
     return <EmptyState view={activeView} onCreateTask={onCreateTask} />;
   }
 
+  const handleCreateNewTodo = () => {
+    setSelectedTodo(null);
+    setTodoFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setSelectedTodo(null);
+    setTodoFormOpen(false);
+  };
+
   return (
     <div className="space-y-2">
       {tasks.map((task) => (
@@ -82,14 +91,14 @@ export default function TodoList({
       ))}
 
       <div className="py-4 border-t border-slate-200/60">
-        {isCreatingNewTodo ? (
+        {isOpenTodoForm ? (
           <div className="bg-white py-3.5 px-4 border border-slate-200/60 rounded-xl transition-all duration-200">
-            <TodoForm onClose={onFormClose} todo={null} />
+            <TodoForm onClose={handleCloseForm} todo={null} />
           </div>
         ) : (
           <Button
             variant="ghost"
-            onClick={onCreateTask}
+            onClick={handleCreateNewTodo}
             className=" hover:bg-slate-800 hover:text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
