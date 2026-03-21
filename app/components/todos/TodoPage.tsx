@@ -1,7 +1,4 @@
-import { useFetcher } from "react-router";
-
 import type { Todos } from "~/types/appwrite";
-import type { TodoFormPayload, TodoNode } from "~/types/todo";
 
 import { useViewMode } from "~/contexts/ViewModeContext";
 
@@ -22,40 +19,13 @@ export default function TodoPage() {
 
   const { viewMode } = useViewMode();
 
-  const fetcher = useFetcher();
-
-  const deleteTodoFetcher = useFetcher({ key: "deleteTodo" });
-
-  const handleDelete = async (todoId: string) => {
-    if (!todoId) return;
-
-    const submitData: TodoFormPayload = {
-      intent: "delete",
-      todoId,
-    };
-
-    await deleteTodoFetcher.submit(submitData, {
-      method: "post",
-      encType: "application/json",
-    });
-  };
-
   return (
     <div className="p-8">
       <div className="flex-1 overflow-auto p-4 lg:p-8">
         {viewMode === "list" ? (
-          <TodoList
-            tasks={todos}
-            isLoading={isLoading}
-            onDelete={handleDelete}
-            activeView={viewMode}
-          />
+          <TodoList tasks={todos} isLoading={isLoading} activeView={viewMode} />
         ) : (
-          <KanbanBoard
-            tasks={todos}
-            isLoading={isLoading}
-            onDelete={handleDelete}
-          />
+          <KanbanBoard tasks={todos} isLoading={isLoading} />
         )}
       </div>
 

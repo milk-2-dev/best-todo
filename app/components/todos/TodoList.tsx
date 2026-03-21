@@ -14,14 +14,12 @@ import { Button } from "~/components/ui/button";
 type Props = {
   tasks: TodoNode[];
   isLoading: boolean;
-  onDelete: (id: string) => void;
   activeView: ViewMode;
 };
 
 export default function TodoList({
   tasks,
   isLoading,
-  onDelete,
   activeView,
 }: Props) {
   const { isOpenTodoForm, setSelectedTodo, setTodoFormOpen } = useTodoStore();
@@ -66,7 +64,6 @@ export default function TodoList({
           key={task.$id}
           todo={task}
           nestingLevel={0}
-          onDelete={onDelete}
           variant="list"
         />
       ))}

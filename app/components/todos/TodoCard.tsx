@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useFetcher } from "react-router";
 import {
   Calendar,
@@ -53,7 +53,6 @@ const priorityConfig = {
 type TodoCardProps = {
   todo: TodoNode;
   nestingLevel: number;
-  onDelete: (todo: any) => void;
   variant?: ViewMode;
 };
 
@@ -62,7 +61,6 @@ const DEFAULT_NESTING_LEVEL = 0;
 export default function TodoCard({
   todo,
   nestingLevel = DEFAULT_NESTING_LEVEL,
-  onDelete,
   variant = "list",
 }: TodoCardProps) {
   const {
@@ -72,24 +70,25 @@ export default function TodoCard({
     setTodoDetailsOpen,
     setTodoFormOpen,
     toggleTodo,
+    removeTodo,
   } = useTodoStore();
   const isCompleted = todo.completed;
   const priority = priorityConfig[todo.priority] || priorityConfig.medium;
   const nestingClass = `ml-${nestingLevel * 2 + 4}`;
   const [isOpened, setIsOpened] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isDeletingCurrentTodo, setIsDeletingCurrentTodo] = useState(false);
+
   const fetcher = useFetcher();
 
   const deleteTodoFetcher = useFetcher({ key: "deleteTodo" });
 
-  useEffect(() => {
-    if (deleteTodoFetcher.state === "submitting") {
-      setIsDeleting(true);
-    } else if (deleteTodoFetcher.state === "idle" && deleteTodoFetcher.data) {
-      setIsDeleting(false);
-    }
-  }, [deleteTodoFetcher.state, deleteTodoFetcher.data]);
+  // useEffect(() => {
+  //   if (deleteTodoFetcher.state === "submitting") {
+  //     setIsDeleting(true);
+  //   } else if (deleteTodoFetcher.state === "idle" && deleteTodoFetcher.data) {
+  //     setIsDeleting(false);
+  //   }
+  // }, [deleteTodoFetcher.state, deleteTodoFetcher.data]);
 
   const handleToggle = async (todo: TodoNode) => {
     if (!todo.$id) return;
@@ -105,13 +104,44 @@ export default function TodoCard({
     await fetcher.submit(submitData, {
       method: "post",
       encType: "application/json",
-      action: "/backlog"
+      action: "/backlog",
     });
   };
 
   const handleShowDetails = (todo: TodoNode) => {
     setSelectedTodo(todo);
     setTodoDetailsOpen(true);
+  };
+
+  const handleCollapsibleChanged = (isOpen: boolean) => {
+    setIsOpened(isOpen);
+  };
+
+  const handleEditTodo = (todo: TodoNode) => {
+    setSelectedTodo(todo);
+    setTodoFormOpen(true);
+  };
+
+  const handleEditFormClose = () => {
+    setSelectedTodo(null);
+    setTodoFormOpen(false);
+  };
+
+  const handleDelete = async (todoId: string) => {
+    if (!todoId) return;
+
+    setIsDeleting(true);
+    removeTodo(todoId);
+
+    const submitData = {
+      intent: "delete",
+      todoId,
+    };
+
+    await deleteTodoFetcher.submit(submitData, {
+      method: "post",
+      encType: "application/json",
+    });
   };
 
   if (variant === "board") {
@@ -174,20 +204,6 @@ export default function TodoCard({
     );
   }
 
-  const handleCollapsibleChanged = (isOpen: boolean) => {
-    setIsOpened(isOpen);
-  };
-
-  const handleEditTodo = (todo: TodoNode) => {
-    setSelectedTodo(todo);
-    setTodoFormOpen(true);
-  };
-
-  const handleEditFormClose = () => {
-    setSelectedTodo(null);
-    setTodoFormOpen(false);
-  };
-
   return (
     <Collapsible key={todo.$id} onOpenChange={handleCollapsibleChanged}>
       <div
@@ -195,9 +211,7 @@ export default function TodoCard({
           "group  bg-white transition-all duration-200",
           nestingLevel === DEFAULT_NESTING_LEVEL &&
             "py-3.5 px-4 border border-slate-200/60 rounded-xl hover:shadow-md hover:border-slate-300/60",
-          isDeleting &&
-            isDeletingCurrentTodo &&
-            "opacity-50 scale-95 pointer-events-none"
+          isDeleting && "opacity-50 scale-95 pointer-events-none"
         )}
       >
         {selectedTodo && selectedTodo.$id === todo.$id && isOpenTodoForm ? (
@@ -305,7 +319,7 @@ export default function TodoCard({
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => onDelete(todo.$id)}>
+                    <AlertDialogAction onClick={() => handleDelete(todo.$id)}>
                       Continue
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -372,7 +386,6 @@ export default function TodoCard({
                 todo={subtask}
                 nestingLevel={nestingLevel + 1}
                 variant={variant}
-                onDelete={onDelete}
               />
             ))}
           </CollapsibleContent>
