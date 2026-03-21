@@ -23,22 +23,8 @@ export default function TodoPage() {
   const { viewMode } = useViewMode();
 
   const fetcher = useFetcher();
+
   const deleteTodoFetcher = useFetcher({ key: "deleteTodo" });
-
-  const handleToggleComplete = async (todo: TodoNode) => {
-    if (!todo.$id) return;
-
-    const submitData: TodoFormPayload = {
-      intent: "toggleComplete",
-      todoId: todo.$id,
-      completed: !todo.completed,
-    };
-
-    await fetcher.submit(submitData, {
-      method: "post",
-      encType: "application/json",
-    });
-  };
 
   const handleDelete = async (todoId: string) => {
     if (!todoId) return;
@@ -61,7 +47,6 @@ export default function TodoPage() {
           <TodoList
             tasks={todos}
             isLoading={isLoading}
-            onToggleComplete={handleToggleComplete}
             onDelete={handleDelete}
             activeView={viewMode}
           />
@@ -69,7 +54,6 @@ export default function TodoPage() {
           <KanbanBoard
             tasks={todos}
             isLoading={isLoading}
-            onToggleComplete={handleToggleComplete}
             onDelete={handleDelete}
           />
         )}

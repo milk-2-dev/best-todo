@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import {
   Calendar,
@@ -53,7 +53,6 @@ const priorityConfig = {
 type TodoCardProps = {
   todo: TodoNode;
   nestingLevel: number;
-  onToggleComplete: (todo: any) => void;
   onDelete: (todo: any) => void;
   variant?: ViewMode;
 };
@@ -63,7 +62,6 @@ const DEFAULT_NESTING_LEVEL = 0;
 export default function TodoCard({
   todo,
   nestingLevel = DEFAULT_NESTING_LEVEL,
-  onToggleComplete,
   onDelete,
   variant = "list",
 }: TodoCardProps) {
@@ -73,6 +71,7 @@ export default function TodoCard({
     setSelectedTodo,
     setTodoDetailsOpen,
     setTodoFormOpen,
+    toggleTodo,
   } = useTodoStore();
   const isCompleted = todo.completed;
   const priority = priorityConfig[todo.priority] || priorityConfig.medium;
@@ -80,6 +79,7 @@ export default function TodoCard({
   const [isOpened, setIsOpened] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeletingCurrentTodo, setIsDeletingCurrentTodo] = useState(false);
+  const fetcher = useFetcher();
 
   const deleteTodoFetcher = useFetcher({ key: "deleteTodo" });
 
@@ -91,9 +91,22 @@ export default function TodoCard({
     }
   }, [deleteTodoFetcher.state, deleteTodoFetcher.data]);
 
-  const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    onToggleComplete(todo);
+  const handleToggle = async (todo: TodoNode) => {
+    if (!todo.$id) return;
+
+    toggleTodo(todo.$id);
+
+    const submitData = {
+      intent: "toggleComplete",
+      todoId: todo.$id,
+      completed: !todo.completed,
+    };
+
+    await fetcher.submit(submitData, {
+      method: "post",
+      encType: "application/json",
+      action: "/backlog"
+    });
   };
 
   const handleShowDetails = (todo: TodoNode) => {
@@ -173,7 +186,7 @@ export default function TodoCard({
   const handleEditFormClose = () => {
     setSelectedTodo(null);
     setTodoFormOpen(false);
-  }
+  };
 
   return (
     <Collapsible key={todo.$id} onOpenChange={handleCollapsibleChanged}>
@@ -212,7 +225,7 @@ export default function TodoCard({
               )}
 
               <button
-                onClick={handleToggle}
+                onClick={() => handleToggle(todo)}
                 className="shrink-0 cursor-pointer"
               >
                 {isCompleted ? (
@@ -359,9 +372,7 @@ export default function TodoCard({
                 todo={subtask}
                 nestingLevel={nestingLevel + 1}
                 variant={variant}
-                onEdit={onEdit}
                 onDelete={onDelete}
-                onToggleComplete={onToggleComplete}
               />
             ))}
           </CollapsibleContent>

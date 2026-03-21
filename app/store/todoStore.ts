@@ -33,13 +33,13 @@ export const useTodoStore = create<TodoStore>((set) => ({
 
   removeTodo: (id) =>
     set((state) => ({
-      todos: state.todos.filter((t) => t.id !== id),
+      todos: state.todos.filter((t) => t.$id !== id),
     })),
 
   toggleTodo: (id) =>
     set((state) => ({
       todos: state.todos.map((t) =>
-        t.id === id ? { ...t, completed: !t.completed } : t
+        t.$id === id ? { ...t, completed: !t.completed } : t
       ),
     })),
 

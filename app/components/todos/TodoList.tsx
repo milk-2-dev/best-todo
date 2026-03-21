@@ -14,26 +14,27 @@ import { Button } from "~/components/ui/button";
 type Props = {
   tasks: TodoNode[];
   isLoading: boolean;
-  onToggleComplete: (id: string) => void;
-  isFormOpen: boolean;
-  onFormClose: () => void;
-  editedId: string | null;
-  onEdit: (task: any) => void;
   onDelete: (id: string) => void;
-  onCreateTask: () => void;
-  onShowDetails: (task: TodoNode) => void;
   activeView: ViewMode;
 };
 
 export default function TodoList({
   tasks,
   isLoading,
-  onToggleComplete,
   onDelete,
-  onCreateTask,
   activeView,
 }: Props) {
   const { isOpenTodoForm, setSelectedTodo, setTodoFormOpen } = useTodoStore();
+
+  const handleCreateNewTodo = () => {
+    setSelectedTodo(null);
+    setTodoFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setSelectedTodo(null);
+    setTodoFormOpen(false);
+  };
 
   if (isLoading) {
     return (
@@ -55,18 +56,8 @@ export default function TodoList({
   }
 
   if (!tasks || tasks.length === 0) {
-    return <EmptyState view={activeView} onCreateTask={onCreateTask} />;
+    return <EmptyState view={activeView} onCreateTask={handleCreateNewTodo} />;
   }
-
-  const handleCreateNewTodo = () => {
-    setSelectedTodo(null);
-    setTodoFormOpen(true);
-  };
-
-  const handleCloseForm = () => {
-    setSelectedTodo(null);
-    setTodoFormOpen(false);
-  };
 
   return (
     <div className="space-y-2">
@@ -75,7 +66,6 @@ export default function TodoList({
           key={task.$id}
           todo={task}
           nestingLevel={0}
-          onToggleComplete={onToggleComplete}
           onDelete={onDelete}
           variant="list"
         />
