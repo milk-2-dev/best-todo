@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Plus } from "lucide-react";
 
 import TodoCard from "./TodoCard";
@@ -17,19 +18,18 @@ type Props = {
   activeView: ViewMode;
 };
 
-export default function TodoList({
-  tasks,
-  isLoading,
-  activeView,
-}: Props) {
+export default function TodoList({ tasks, isLoading, activeView }: Props) {
   const { isOpenTodoForm, setSelectedTodo, setTodoFormOpen } = useTodoStore();
+  const [isTodoListFormOpen, setTodoListFormOpen] = useState(false);
 
   const handleCreateNewTodo = () => {
+    setTodoListFormOpen(true);
     setSelectedTodo(null);
     setTodoFormOpen(true);
   };
 
   const handleCloseForm = () => {
+    setTodoListFormOpen(false);
     setSelectedTodo(null);
     setTodoFormOpen(false);
   };
@@ -60,16 +60,11 @@ export default function TodoList({
   return (
     <div className="space-y-2">
       {tasks.map((task) => (
-        <TodoCard
-          key={task.$id}
-          todo={task}
-          nestingLevel={0}
-          variant="list"
-        />
+        <TodoCard key={task.$id} todo={task} nestingLevel={0} variant="list" />
       ))}
 
       <div className="py-4 border-t border-slate-200/60">
-        {isOpenTodoForm ? (
+        {isOpenTodoForm && isTodoListFormOpen ? (
           <div className="bg-white py-3.5 px-4 border border-slate-200/60 rounded-xl transition-all duration-200">
             <TodoForm onClose={handleCloseForm} todo={null} />
           </div>
