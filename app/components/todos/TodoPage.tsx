@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useFetcher } from "react-router";
 
 import type { Todos } from "~/types/appwrite";
@@ -22,23 +21,9 @@ export default function TodoPage() {
   const isLoading = useTodoStore((s) => s.isLoading);
 
   const { viewMode } = useViewMode();
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [formOpen, setFormOpen] = useState<boolean>(false);
-  const [editingTodo, setEditingTodo] = useState<Todos | null>(null);
-  const [todoDetails, setTodoDetails] = useState<Todos | null>(null);
 
   const fetcher = useFetcher();
   const deleteTodoFetcher = useFetcher({ key: "deleteTodo" });
-
-  const handleCreate = () => {
-    setEditingTodo(null);
-    setFormOpen(true);
-  };
-
-  const handleEdit = (todo: TodoNode) => {
-    setEditingTodo(todo);
-    setFormOpen(true);
-  };
 
   const handleToggleComplete = async (todo: TodoNode) => {
     if (!todo.$id) return;
@@ -77,12 +62,7 @@ export default function TodoPage() {
             tasks={todos}
             isLoading={isLoading}
             onToggleComplete={handleToggleComplete}
-            isFormOpen={formOpen}
-            editedId={editingTodo ? editingTodo.$id : null}
-            onFormClose={() => setFormOpen(false)}
-            onEdit={handleEdit}
             onDelete={handleDelete}
-            onCreateTask={handleCreate}
             activeView={viewMode}
           />
         ) : (
@@ -90,7 +70,6 @@ export default function TodoPage() {
             tasks={todos}
             isLoading={isLoading}
             onToggleComplete={handleToggleComplete}
-            onEdit={handleEdit}
             onDelete={handleDelete}
           />
         )}

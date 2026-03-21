@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { Plus } from "lucide-react";
 
 import TodoCard from "./TodoCard";
@@ -30,10 +29,6 @@ export default function TodoList({
   tasks,
   isLoading,
   onToggleComplete,
-  isFormOpen,
-  onFormClose,
-  onEdit,
-  editedId,
   onDelete,
   onCreateTask,
   activeView,
@@ -81,10 +76,6 @@ export default function TodoList({
           todo={task}
           nestingLevel={0}
           onToggleComplete={onToggleComplete}
-          isFormOpen={isFormOpen}
-          onFormClose={onFormClose}
-          editedId={editedId}
-          onEdit={onEdit}
           onDelete={onDelete}
           variant="list"
         />

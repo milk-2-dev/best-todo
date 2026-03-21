@@ -9,7 +9,7 @@ import {
   ListChecks,
   Pencil,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { ChevronRightIcon, ChevronDownIcon, Trash2 } from "lucide-react";
 
 import { cn } from "~/lib/utils";
@@ -54,10 +54,6 @@ type TodoCardProps = {
   todo: TodoNode;
   nestingLevel: number;
   onToggleComplete: (todo: any) => void;
-  isFormOpen: boolean;
-  onFormClose: () => void;
-  editedId: string | null;
-  onEdit: (todo: any) => void;
   onDelete: (todo: any) => void;
   variant?: ViewMode;
 };
@@ -68,14 +64,16 @@ export default function TodoCard({
   todo,
   nestingLevel = DEFAULT_NESTING_LEVEL,
   onToggleComplete,
-  isFormOpen,
-  onFormClose,
-  editedId,
-  onEdit,
   onDelete,
   variant = "list",
 }: TodoCardProps) {
-  const { setSelectedTodo, setTodoDetailsOpen } = useTodoStore();
+  const {
+    selectedTodo,
+    isOpenTodoForm,
+    setSelectedTodo,
+    setTodoDetailsOpen,
+    setTodoFormOpen,
+  } = useTodoStore();
   const isCompleted = todo.completed;
   const priority = priorityConfig[todo.priority] || priorityConfig.medium;
   const nestingClass = `ml-${nestingLevel * 2 + 4}`;
@@ -84,10 +82,6 @@ export default function TodoCard({
   const [isDeletingCurrentTodo, setIsDeletingCurrentTodo] = useState(false);
 
   const deleteTodoFetcher = useFetcher({ key: "deleteTodo" });
-
-  const isEditingTodo = useMemo(() => {
-    return isFormOpen && editedId === todo.$id;
-  }, [isFormOpen, editedId, todo.$id]);
 
   useEffect(() => {
     if (deleteTodoFetcher.state === "submitting") {
@@ -171,6 +165,16 @@ export default function TodoCard({
     setIsOpened(isOpen);
   };
 
+  const handleEditTodo = (todo: TodoNode) => {
+    setSelectedTodo(todo);
+    setTodoFormOpen(true);
+  };
+
+  const handleEditFormClose = () => {
+    setSelectedTodo(null);
+    setTodoFormOpen(false);
+  }
+
   return (
     <Collapsible key={todo.$id} onOpenChange={handleCollapsibleChanged}>
       <div
@@ -183,8 +187,8 @@ export default function TodoCard({
             "opacity-50 scale-95 pointer-events-none"
         )}
       >
-        {isEditingTodo ? (
-          <TodoForm onClose={onFormClose} todo={todo} />
+        {selectedTodo && selectedTodo.$id === todo.$id && isOpenTodoForm ? (
+          <TodoForm onClose={handleEditFormClose} todo={selectedTodo} />
         ) : (
           <div className="flex items-center gap-4">
             <div className="flex items-center relative pl-8">
@@ -261,7 +265,7 @@ export default function TodoCard({
                 className="cursor-pointer text-slate-500 hover:bg-white"
                 variant="ghost"
                 size="icon-xs"
-                onClick={() => onEdit(todo)}
+                onClick={() => handleEditTodo(todo)}
               >
                 <Pencil className="w-3.5 h-3.5" />
               </Button>
