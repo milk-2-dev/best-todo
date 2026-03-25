@@ -7,17 +7,29 @@ import { useTodoStore } from "~/store/todoStore";
 import TodoList from "./TodoList";
 import KanbanBoard from "./KanbanBoard";
 import TodoDetailsModal from "./TodoDetailsModal";
+import { use, useEffect } from "react";
 
 interface Props {
   todos: { total: number; rows: Todos[] };
 }
 
 export default function TodoPage() {
-  const { todos, selectedTodo, isOpenTodoDetails, setTodoDetailsOpen } =
-    useTodoStore();
+  const {
+    todos,
+    selectedTodo,
+    isOpenTodoDetails,
+    setTodoDetailsOpen,
+    setSelectedTodo,
+  } = useTodoStore();
   const isLoading = useTodoStore((s) => s.isLoading);
 
   const { viewMode } = useViewMode();
+
+  useEffect(() => {
+    if (selectedTodo) {
+      setSelectedTodo(todos.find((t) => t.$id === selectedTodo.$id) || null);
+    }
+  }, [todos]);
 
   return (
     <div className="p-8">

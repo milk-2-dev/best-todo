@@ -6,8 +6,6 @@ import {
   Calendar as CalendarIcon,
   Flag,
   Loader2,
-  Trash2,
-  Plus,
 } from "lucide-react";
 
 import { cn } from "~/lib/utils";
@@ -48,7 +46,7 @@ const defaultTask = {
   subtasks: [],
 };
 
-function TodoForm({ onClose, todo }) {
+function TodoForm({ onClose, todo, parentTodoId }) {
   const [formData, setFormData] = useState<TaskFormData>(defaultTask);
   const fetcher = useFetcher({ key: "todo-form" });
   const isEditing = useMemo(() => !!todo?.$id, [todo]);
@@ -63,6 +61,7 @@ function TodoForm({ onClose, todo }) {
     } else {
       setFormData({
         ...defaultTask,
+        parentId: parentTodoId || null,
       });
     }
   }, [todo]);
@@ -80,7 +79,7 @@ function TodoForm({ onClose, todo }) {
   }, [fetcher.state, fetcher.data, onClose]);
 
   const hasChanges = useMemo(() => {
-    if (!todo){
+    if (!todo) {
       return formData.title.trim() !== "";
     }
 
