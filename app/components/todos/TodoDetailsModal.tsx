@@ -123,6 +123,8 @@ export default function TodoDetailsModal({ isOpen, onClose, todo }: Props) {
           <div className="py-4 space-y-4 border-t border-slate-200/60">
             {todo.subtasks && todo.subtasks.length > 0 && (
               <div className="space-y-2">
+                <p className="text-sm font-medium text-slate-900">Subtasks:</p>
+
                 {todo.subtasks.map((subtask) => (
                   <TodoCard
                     key={subtask.$id}

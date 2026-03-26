@@ -19,19 +19,17 @@ type Props = {
 };
 
 export default function TodoList({ tasks, isLoading, activeView }: Props) {
-  const { isOpenTodoForm, setSelectedTodo, setTodoFormOpen } = useTodoStore();
-  const [isTodoListFormOpen, setTodoListFormOpen] = useState(false);
+  const { setFormData } = useTodoStore();
+  const [isNewTodoFormOpen, setIsNewTodoFormOpen] = useState(false);
 
   const handleCreateNewTodo = () => {
-    setTodoListFormOpen(true);
-    setSelectedTodo(null);
-    setTodoFormOpen(true);
+    setIsNewTodoFormOpen(true);
+    setFormData(null);
   };
 
   const handleCloseForm = () => {
-    setTodoListFormOpen(false);
-    setSelectedTodo(null);
-    setTodoFormOpen(false);
+    setIsNewTodoFormOpen(false);
+    setFormData(null);
   };
 
   if (isLoading) {
@@ -64,7 +62,7 @@ export default function TodoList({ tasks, isLoading, activeView }: Props) {
       ))}
 
       <div className="py-4 border-t border-slate-200/60">
-        {isOpenTodoForm && isTodoListFormOpen ? (
+        {isNewTodoFormOpen ? (
           <div className="bg-white py-3.5 px-4 border border-slate-200/60 rounded-xl transition-all duration-200">
             <TodoForm onClose={handleCloseForm} todo={null} />
           </div>

@@ -2,11 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useFetcher } from "react-router";
 import { format } from "date-fns";
 
-import {
-  Calendar as CalendarIcon,
-  Flag,
-  Loader2,
-} from "lucide-react";
+import { Calendar as CalendarIcon, Flag, Loader2 } from "lucide-react";
 
 import { cn } from "~/lib/utils";
 
@@ -35,6 +31,12 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 
+type Props = {
+  onClose: () => void;
+  todo?: TodoNode | null;
+  parentTodoId?: string | null;
+};
+
 const defaultTask = {
   intent: "create" as TaskFormIntent,
   title: "",
@@ -46,7 +48,7 @@ const defaultTask = {
   subtasks: [],
 };
 
-function TodoForm({ onClose, todo, parentTodoId }) {
+function TodoForm({ onClose, todo, parentTodoId }: Props) {
   const [formData, setFormData] = useState<TaskFormData>(defaultTask);
   const fetcher = useFetcher({ key: "todo-form" });
   const isEditing = useMemo(() => !!todo?.$id, [todo]);

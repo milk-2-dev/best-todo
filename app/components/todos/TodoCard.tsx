@@ -65,10 +65,11 @@ export default function TodoCard({
 }: TodoCardProps) {
   const {
     selectedTodo,
+    formData,
     isOpenTodoForm,
     setSelectedTodo,
+    setFormData,
     setTodoDetailsOpen,
-    setTodoFormOpen,
     toggleTodo,
     removeTodo,
   } = useTodoStore();
@@ -77,18 +78,11 @@ export default function TodoCard({
   const nestingClass = `ml-${nestingLevel * 2 + 4}`;
   const [isOpened, setIsOpened] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
 
   const fetcher = useFetcher();
 
   const deleteTodoFetcher = useFetcher({ key: "deleteTodo" });
-
-  // useEffect(() => {
-  //   if (deleteTodoFetcher.state === "submitting") {
-  //     setIsDeleting(true);
-  //   } else if (deleteTodoFetcher.state === "idle" && deleteTodoFetcher.data) {
-  //     setIsDeleting(false);
-  //   }
-  // }, [deleteTodoFetcher.state, deleteTodoFetcher.data]);
 
   const handleToggle = async (todo: TodoNode) => {
     if (!todo.$id) return;
@@ -118,13 +112,13 @@ export default function TodoCard({
   };
 
   const handleEditTodo = (todo: TodoNode) => {
-    setSelectedTodo(todo);
-    setTodoFormOpen(true);
+    setFormData(todo);
+    setIsEditFormOpen(true);
   };
 
   const handleEditFormClose = () => {
-    setSelectedTodo(null);
-    setTodoFormOpen(false);
+    setFormData(null);
+    setIsEditFormOpen(false);
   };
 
   const handleDelete = async (todoId: string) => {
@@ -214,8 +208,8 @@ export default function TodoCard({
           isDeleting && "opacity-50 scale-95 pointer-events-none"
         )}
       >
-        {selectedTodo && selectedTodo.$id === todo.$id && isOpenTodoForm ? (
-          <TodoForm onClose={handleEditFormClose} todo={selectedTodo} />
+        {isEditFormOpen && formData?.$id === todo.$id ? (
+          <TodoForm onClose={handleEditFormClose} todo={formData} />
         ) : (
           <div className="flex items-center gap-4">
             <div className="flex items-center relative pl-8">

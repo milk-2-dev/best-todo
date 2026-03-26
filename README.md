@@ -160,11 +160,11 @@
 - [✅] **Task 19**: Todo Details Modal - UI
   - ✅ Modal component
   - ✅ Full task info display
-  - ⏳ Subtasks list
+  - ✅ Subtasks list
 
 - [ ] **Task 20**: Todo Details Modal - Edit
-  - ⏳ Inline editing
-  - ⏳ Save changes
+  - ✅ Inline editing
+  - ✅ Save changes
   - ⏳ Modal controls
 
 - [ ] **Task 21**: Subtasks Management

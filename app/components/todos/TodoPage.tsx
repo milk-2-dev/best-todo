@@ -1,4 +1,4 @@
-import type { Todos } from "~/types/appwrite";
+import { useEffect } from "react";
 
 import { useViewMode } from "~/contexts/ViewModeContext";
 
@@ -7,11 +7,7 @@ import { useTodoStore } from "~/store/todoStore";
 import TodoList from "./TodoList";
 import KanbanBoard from "./KanbanBoard";
 import TodoDetailsModal from "./TodoDetailsModal";
-import { use, useEffect } from "react";
 
-interface Props {
-  todos: { total: number; rows: Todos[] };
-}
 
 export default function TodoPage() {
   const {
@@ -25,6 +21,7 @@ export default function TodoPage() {
 
   const { viewMode } = useViewMode();
 
+  // Sync selectedTodo with the latest todos data, for example after an update or toggle action
   useEffect(() => {
     if (selectedTodo) {
       setSelectedTodo(todos.find((t) => t.$id === selectedTodo.$id) || null);
