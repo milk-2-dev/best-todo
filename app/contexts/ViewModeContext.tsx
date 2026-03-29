@@ -51,7 +51,7 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
       const defaults: Record<string, ViewMode> = {
         "/backlog": "list",
         "/today": "list", 
-        "/upcoming": "board",
+        "/upcoming": "list",
         "/completed": "list",
       };
       setViewModeState(defaults[location.pathname] || "list");

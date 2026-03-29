@@ -1,17 +1,25 @@
+import { useEffect } from "react";
 import { type LoaderFunctionArgs } from "react-router";
 
 import type { Route } from "./+types/_protected.today";
 
-import type { Todo } from "~/types/todo";
-
 import {
   getTodosByStatus,
+  fetchSubtasks,
   createTodo,
   updateTodo,
   deleteTodo,
+  toggleTodoComplete,
 } from "~/lib/todos.server";
 
-import { requireUser } from "~/utils/session.server";
+import {
+  getSessionToken,
+  getUserFromSession,
+  requireUser,
+} from "~/utils/session.server";
+import { createSessionClient } from "~/lib/appwrite.server";
+
+import { useTodoStore } from "~/store/todoStore";
 
 import TodoPage from "../components/todos/TodoPage";
 
@@ -24,8 +32,11 @@ export function meta({}: Route.MetaArgs) {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    const user = await requireUser(request);
-    const todos = await getTodosByStatus(user.$id, "today");
+    const sessionToken = await getSessionToken(request);
+    const user = await getUserFromSession(request);
+
+    const { tablesDB } = createSessionClient(sessionToken);
+    const todos = await getTodosByStatus(tablesDB, user.$id, "upcoming");
 
     return Response.json({ todos, user });
   } catch (error) {
@@ -33,69 +44,110 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 }
 
-export async function action({ request }: Route.ActionArgs): Promise<Response> {
+export async function action({ request }: Route.ActionArgs) {
   const user = await requireUser(request);
-  const data = await request.json();
-  const { intent, todoId, ...todoData } = data;
 
   try {
-    switch (intent) {
-      case "create": {
-        const newTodo = await createTodo(user.$id, data);
+    const sessionToken = await getSessionToken(request);
 
-        return Response.json({
-          success: true,
-          todo: newTodo,
-          message: "Todo created successfully",
-        });
-      }
+    if (sessionToken && user) {
+      const { tablesDB } = createSessionClient(sessionToken);
 
-      case "update": {
-        if (!todoId) {
+      const data = await request.json();
+      const { intent, todoId } = data;
+
+      switch (intent) {
+        case "create": {
+          const newData = { ...data };
+          delete newData.intent;
+
+          const newTodo = await createTodo(tablesDB, user.$id, newData);
+
+          return Response.json({
+            success: true,
+            todo: newTodo,
+            message: "Todo created successfully",
+          });
+        }
+
+        case "update": {
+          if (!todoId) {
+            return Response.json(
+              {
+                success: false,
+                error: "Todo ID is required",
+              },
+              { status: 400 }
+            );
+          }
+
+          const newData = { ...data };
+          delete newData.intent;
+          delete newData.subtasks;
+          delete newData.todoId;
+
+          const updatedTodo = {
+            ...(await updateTodo(tablesDB, todoId, newData)),
+            subtasks: await fetchSubtasks(tablesDB, user.$id, todoId, 1),
+          };
+
+          return Response.json({
+            success: true,
+            todo: updatedTodo,
+            message: "Todo updated successfully",
+          });
+        }
+
+        case "toggleComplete": {
+          if (!todoId) {
+            return Response.json(
+              {
+                success: false,
+                error: "Todo ID is required",
+              },
+              { status: 400 }
+            );
+          }
+
+          const updatedTodo = {
+            ...(await toggleTodoComplete(tablesDB, todoId, data.completed)),
+            subtasks: await fetchSubtasks(tablesDB, user.$id, todoId, 1),
+          };
+
+          return Response.json({
+            success: true,
+            todo: updatedTodo,
+            message: "Todo complete status changed successfully",
+          });
+        }
+
+        case "delete": {
+          if (!todoId) {
+            return Response.json(
+              {
+                success: false,
+                error: "Todo ID is required",
+              },
+              { status: 400 }
+            );
+          }
+
+          await deleteTodo(tablesDB, todoId);
+          return Response.json({
+            success: true,
+            message: "Todo deleted successfully",
+          });
+        }
+
+        default:
           return Response.json(
             {
               success: false,
-              error: "Todo ID is required",
+              error: "Invalid intent",
             },
             { status: 400 }
           );
-        }
-
-        const updatedTodo = await updateTodo(todoId, data);
-
-        return Response.json({
-          success: true,
-          todo: updatedTodo,
-          message: "Todo updated successfully",
-        });
       }
-
-      case "delete": {
-        if (!todoId) {
-          return Response.json(
-            {
-              success: false,
-              error: "Todo ID is required",
-            },
-            { status: 400 }
-          );
-        }
-
-        await deleteTodo(todoId);
-        return Response.json({
-          success: true,
-          message: "Todo deleted successfully",
-        });
-      }
-
-      default:
-        return Response.json(
-          {
-            success: false,
-            error: "Invalid intent",
-          },
-          { status: 400 }
-        );
     }
   } catch (error) {
     console.error("Todo action error:", error);
@@ -109,8 +161,15 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
   }
 }
 
-export default function Backlog({ loaderData }: Route.ComponentProps) {
+export default function Upcoming({ loaderData }: Route.ComponentProps) {
   const { todos } = loaderData;
+  const setTodos = useTodoStore((s) => s.setTodos);
+  const setIsLoading = useTodoStore((s) => s.setIsLoading);
 
-  return <TodoPage todos={todos} />;
+  useEffect(() => {
+    setTodos(todos);
+    setIsLoading(false);
+  }, [todos]);
+
+  return <TodoPage />;
 }
