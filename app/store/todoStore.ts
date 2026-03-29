@@ -38,12 +38,33 @@ export const useTodoStore = create<TodoStore>((set) => ({
       todos: state.todos.filter((t) => t.$id !== id),
     })),
 
-  toggleTodo: (id) =>
+  toggleTodo: (id) => {
+    const toggleRecursive = (todos, depth = 0) => {
+      if (depth > 4) return todos;
+
+      return todos.map((t) => {
+        if (t.$id === id) {
+          return {
+            ...t,
+            completed: !t.completed,
+          };
+        }
+
+        if (t.subtasks && t.subtasks.length > 0) {
+          return {
+            ...t,
+            subtasks: toggleRecursive(t.subtasks, depth + 1),
+          };
+        }
+
+        return t;
+      });
+    };
+
     set((state) => ({
-      todos: state.todos.map((t) =>
-        t.$id === id ? { ...t, completed: !t.completed } : t
-      ),
-    })),
+      todos: toggleRecursive(state.todos),
+    }));
+  },
 
   updateTodo: (id, title) =>
     set((state) => ({

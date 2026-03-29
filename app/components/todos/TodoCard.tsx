@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useFetcher } from "react-router";
 import {
   Calendar,
@@ -63,17 +63,23 @@ export default function TodoCard({
   nestingLevel = DEFAULT_NESTING_LEVEL,
   variant = "list",
 }: TodoCardProps) {
-  const {
-    isOpenTodoDetails,
-    formData,
-    isOpenTodoForm,
-    setSelectedTodo,
-    setFormData,
-    setTodoDetailsOpen,
-    toggleTodo,
-    removeTodo,
-  } = useTodoStore();
-  const isCompleted = todo.completed;
+  const isOpenTodoDetails = useTodoStore((s) => s.isOpenTodoDetails);
+  const formData = useTodoStore((s) => s.formData);
+  const setTodoDetailsOpen = useTodoStore((s) => s.setTodoDetailsOpen);
+  const setSelectedTodo = useTodoStore((s) => s.setSelectedTodo);
+  const setFormData = useTodoStore((s) => s.setFormData);
+  const toggleTodo = useTodoStore((s) => s.toggleTodo);
+  const removeTodo = useTodoStore((s) => s.removeTodo);
+
+  const isCompleted = useMemo(() => todo.completed, [todo.completed]);
+  const completedCount = useMemo(() => {
+    if (!todo.subtasks) return 0;
+
+    return todo.subtasks.filter((s) => {
+      return s.completed;
+    }).length;
+  }, [todo]);
+
   const priority = priorityConfig[todo.priority] || priorityConfig.medium;
   const nestingClass = `ml-${nestingLevel * 2 + 4}`;
   const [isOpened, setIsOpened] = useState(false);
@@ -169,8 +175,7 @@ export default function TodoCard({
               {todo.subtasks?.length > 0 && (
                 <span className="inline-flex items-center gap-1 text-xs text-slate-500">
                   <ListChecks className="w-3 h-3" />
-                  {todo.subtasks.filter((s) => s.status === "completed").length}
-                  /{todo.subtasks.length}
+                  {completedCount}/{todo.subtasks.length}
                 </span>
               )}
               {todo.dueDate && (
@@ -266,8 +271,7 @@ export default function TodoCard({
               {todo.subtasks?.length > 0 && (
                 <span className="inline-flex items-center gap-1 text-xs text-slate-500">
                   <ListChecks className="w-3 h-3" />
-                  {todo.subtasks.filter((s) => s.status === "completed").length}
-                  /{todo.subtasks.length}
+                  {completedCount}/{todo.subtasks.length}
                 </span>
               )}
 

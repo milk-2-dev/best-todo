@@ -19,7 +19,7 @@ type Props = {
 };
 
 export default function TodoList({ tasks, isLoading, activeView }: Props) {
-  const { setFormData, setSelectedTodo, setTodoDetailsOpen } = useTodoStore();
+  const { setFormData } = useTodoStore();
   const [isNewTodoFormOpen, setIsNewTodoFormOpen] = useState(false);
 
   const handleCreateNewTodo = () => {
