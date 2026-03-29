@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect, Fragment } from "react";
+import { useState, useEffect, useMemo, Fragment } from "react";
+import { useFetcher } from "react-router";
 import { format } from "date-fns";
 
 import { cn } from "~/lib/utils";
@@ -13,6 +14,8 @@ import {
   CheckCircle2,
   Circle,
 } from "lucide-react";
+
+import { useTodoStore } from "~/store/todoStore";
 
 import {
   Dialog,
@@ -41,12 +44,42 @@ const priorityConfig = {
 export default function TodoDetailsModal({ isOpen, onClose, todo }: Props) {
   if (!todo) return null;
 
+  const selectedTodo = useTodoStore((s) => s.selectedTodo);
+  const setSelectedTodo = useTodoStore((s) => s.setSelectedTodo);
+  const toggleTodo = useTodoStore((s) => s.toggleTodo);
   const isCompleted = useMemo(() => todo?.completed, [todo]);
   const priority = priorityConfig[todo.priority] || priorityConfig.low;
   const [isSubtaskFormOpened, setIsSubtaskFormOpened] = useState(false);
   const [isEditFormOpened, setIsEditFormOpened] = useState(false);
+  const fetcher = useFetcher();
 
-  const handleToggle = () => {};
+  useEffect(() => {
+    if (fetcher.data?.success && selectedTodo) {
+      console.log(
+        "Updating selected todo with latest data from server:",
+        fetcher.data.todo
+      );
+      setSelectedTodo(fetcher.data.todo);
+    }
+  }, [fetcher.data]);
+
+  const handleToggle = async (todo: TodoNode) => {
+    if (!todo.$id) return;
+
+    toggleTodo(todo.$id);
+
+    const submitData = {
+      intent: "toggleComplete",
+      todoId: todo.$id,
+      completed: !todo.completed,
+    };
+
+    await fetcher.submit(submitData, {
+      method: "post",
+      encType: "application/json",
+      action: "/backlog",
+    });
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -64,7 +97,7 @@ export default function TodoDetailsModal({ isOpen, onClose, todo }: Props) {
             <div className="flex items-center gap-4">
               <div className="flex items-center relative">
                 <button
-                  onClick={handleToggle}
+                  onClick={() => handleToggle(todo)}
                   className="shrink-0 cursor-pointer"
                 >
                   {isCompleted ? (

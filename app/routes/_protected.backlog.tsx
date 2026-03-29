@@ -109,9 +109,14 @@ export async function action({ request }: Route.ActionArgs) {
             );
           }
 
-          await toggleTodoComplete(tablesDB, todoId, data.completed);
+          const updatedTodo = {
+            ...(await toggleTodoComplete(tablesDB, todoId, data.completed)),
+            subtasks: await fetchSubtasks(tablesDB, user.$id, todoId, 1),
+          };
+
           return Response.json({
             success: true,
+            todo: updatedTodo,
             message: "Todo complete status changed successfully",
           });
         }
