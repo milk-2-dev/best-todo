@@ -4,7 +4,7 @@ import { type LoaderFunctionArgs } from "react-router";
 import type { Route } from "./+types/_protected.today";
 
 import {
-  getTodosTree,
+  getTodosByStatus,
   fetchSubtasks,
   createTodo,
   updateTodo,
@@ -36,7 +36,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const user = await getUserFromSession(request);
 
     const { tablesDB } = createSessionClient(sessionToken);
-    const todos = await getTodosTree(tablesDB, user.$id, "today");
+    const todos = await getTodosByStatus(tablesDB, user.$id, "today");
 
     return Response.json({ todos, user });
   } catch (error) {
@@ -163,7 +163,8 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Today({ loaderData }: Route.ComponentProps) {
   const { todos } = loaderData;
-  const { setTodos, setIsLoading } = useTodoStore();
+  const setTodos = useTodoStore((s) => s.setTodos);
+  const setIsLoading = useTodoStore((s) => s.setIsLoading);
 
   useEffect(() => {
     setTodos(todos);

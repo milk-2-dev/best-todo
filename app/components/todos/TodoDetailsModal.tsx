@@ -149,7 +149,7 @@ export default function TodoDetailsModal({ isOpen, onClose, todo }: Props) {
               </span>
               {todo.dueDate && (
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
-                  <Calendar className="w-3 h-3" />
+                  <CalendarIcon className="w-3 h-3" />
                   {format(new Date(todo.dueDate), "MMM d, yyyy")}
                 </span>
               )}

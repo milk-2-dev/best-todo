@@ -163,7 +163,8 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Backlog({ loaderData }: Route.ComponentProps) {
   const { todos } = loaderData;
-  const { setTodos, setIsLoading } = useTodoStore();
+  const setTodos = useTodoStore((s) => s.setTodos);
+  const setIsLoading = useTodoStore((s) => s.setIsLoading);
 
   useEffect(() => {
     setTodos(todos);

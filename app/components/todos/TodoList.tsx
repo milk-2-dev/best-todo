@@ -51,7 +51,7 @@ export default function TodoList({ tasks, isLoading, activeView }: Props) {
     );
   }
 
-  if (!tasks || tasks.length === 0) {
+  if (!isNewTodoFormOpen && (!tasks || tasks.length === 0)) {
     return <EmptyState view={activeView} onCreateTask={handleCreateNewTodo} />;
   }
 

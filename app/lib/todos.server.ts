@@ -128,71 +128,20 @@ export async function getTodosByStatus(
   status: TodosStatus
 ): Promise<Response> {
   try {
-    let statusQueries = [];
-
-    switch (status) {
-      case "backlog":
-        statusQueries = [
-          Query.equal("completed", false),
-          Query.or([
-            Query.lessThan("dueDate", format(new Date(), "PPP")),
-            Query.isNull("dueDate"),
-          ]),
-        ];
-
-        break;
-      case "today":
-        statusQueries = [
-          Query.equal("completed", false),
-          Query.equal("dueDate", format(new Date(), "PPP")),
-        ];
-        break;
-      case "upcoming":
-        statusQueries = [
-          Query.equal("completed", false),
-          Query.greaterThan("dueDate", format(new Date(), "PPP")),
-        ];
-        break;
-      case "completed":
-        statusQueries = [Query.equal("completed", true)];
-        break;
-
-      default:
-        statusQueries = [];
-        break;
-    }
-
     const response = await tablesDB.listRows({
       ...todosTableCredentials,
       queries: [
         Query.equal("userId", userId),
         Query.equal("completed", false),
-        ...statusQueries,
+        ...getStatusQueries(status),
         Query.orderAsc("order"),
       ],
     });
 
-    return response as unknown as Response;
+    return response.rows as unknown as Response;
   } catch (error) {
     console.error(`Error fetching ${status} todos:`, error);
     throw error;
-  }
-}
-
-export async function getSubtasks(
-  tablesDB,
-  parentId: string
-): Promise<Todos[]> {
-  try {
-    const response = await tablesDB.listRows({
-      ...todosTableCredentials,
-      queries: [Query.equal("parentId", parentId), Query.orderAsc("order")],
-    });
-
-    return response.documents as unknown as Todos[];
-  } catch (error) {
-    console.error("Error fetching subtasks:", error);
-    return [];
   }
 }
 
@@ -256,6 +205,36 @@ export async function updateTodo(
   }
 }
 
+export async function toggleTodoComplete(
+  tablesDB,
+  todoId: string,
+  isCompleted: boolean
+): Promise<Todos> {
+  const updates: UpdateTodoInput = {
+    completed: isCompleted,
+    $updatedAt: new Date().toISOString(),
+  };
+
+  return updateTodo(tablesDB, todoId, updates);
+}
+
+export async function getSubtasks(
+  tablesDB,
+  parentId: string
+): Promise<Todos[]> {
+  try {
+    const response = await tablesDB.listRows({
+      ...todosTableCredentials,
+      queries: [Query.equal("parentId", parentId), Query.orderAsc("order")],
+    });
+
+    return response.documents as unknown as Todos[];
+  } catch (error) {
+    console.error("Error fetching subtasks:", error);
+    return [];
+  }
+}
+
 export async function deleteTodo(
   tablesDB,
   todoId: string
@@ -280,17 +259,4 @@ export async function deleteTodo(
     console.log("Appwrite", "Error: " + error);
     throw error;
   }
-}
-
-export async function toggleTodoComplete(
-  tablesDB,
-  todoId: string,
-  isCompleted: boolean
-): Promise<Todos> {
-  const updates: UpdateTodoInput = {
-    completed: isCompleted,
-    $updatedAt: new Date().toISOString(),
-  };
-
-  return updateTodo(tablesDB, todoId, updates);
 }

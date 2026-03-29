@@ -8,9 +8,11 @@ import {
   Circle,
   ListChecks,
   Pencil,
+  ChevronRightIcon,
+  ChevronDownIcon,
+  Trash2,
 } from "lucide-react";
-import { format, set } from "date-fns";
-import { ChevronRightIcon, ChevronDownIcon, Trash2 } from "lucide-react";
+import { format } from "date-fns";
 
 import { cn } from "~/lib/utils";
 
