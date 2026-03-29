@@ -162,15 +162,15 @@
   - ✅ Full task info display
   - ✅ Subtasks list
 
-- [ ] **Task 20**: Todo Details Modal - Edit
+- [✅] **Task 20**: Todo Details Modal - Edit
   - ✅ Inline editing
   - ✅ Save changes
-  - ⏳ Modal controls
+  - ✅ Modal controls
 
-- [ ] **Task 21**: Subtasks Management
-  - ⏳ Add subtask form
-  - ⏳ Recursive rendering
-  - ⏳ CRUD for subtasks
+- [✅] **Task 21**: Subtasks Management
+  - ✅ Add subtask form
+  - ✅ Recursive rendering
+  - ✅ CRUD for subtasks
 
 ### ⏳ Phase 9: Smart Categorization (0/1)
 
