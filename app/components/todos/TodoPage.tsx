@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useFetcher } from "react-router";
 
 import { useViewMode } from "~/contexts/ViewModeContext";
 
@@ -8,25 +9,23 @@ import TodoList from "./TodoList";
 import KanbanBoard from "./KanbanBoard";
 import TodoDetailsModal from "./TodoDetailsModal";
 
-
 export default function TodoPage() {
-  const {
-    todos,
-    selectedTodo,
-    isOpenTodoDetails,
-    setTodoDetailsOpen,
-    setSelectedTodo,
-  } = useTodoStore();
+  const todos = useTodoStore((s) => s.todos);
+  const selectedTodo = useTodoStore((s) => s.selectedTodo);
+  const setSelectedTodo = useTodoStore((s) => s.setSelectedTodo);
+  const isOpenTodoDetails = useTodoStore((s) => s.isOpenTodoDetails);
+  const setTodoDetailsOpen = useTodoStore((s) => s.setTodoDetailsOpen);
   const isLoading = useTodoStore((s) => s.isLoading);
+
+  const fetcher = useFetcher({ key: "todo-form" });
 
   const { viewMode } = useViewMode();
 
-  // Sync selectedTodo with the latest todos data, for example after an update or toggle action
   useEffect(() => {
-    if (selectedTodo) {
-      setSelectedTodo(todos.find((t) => t.$id === selectedTodo.$id) || null);
+    if (fetcher.data?.success && selectedTodo) {
+      setSelectedTodo(fetcher.data.todo);
     }
-  }, [todos]);
+  }, [fetcher.data]);
 
   return (
     <div className="p-8">

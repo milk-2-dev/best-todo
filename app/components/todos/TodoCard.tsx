@@ -64,7 +64,7 @@ export default function TodoCard({
   variant = "list",
 }: TodoCardProps) {
   const {
-    selectedTodo,
+    isOpenTodoDetails,
     formData,
     isOpenTodoForm,
     setSelectedTodo,
@@ -104,7 +104,7 @@ export default function TodoCard({
 
   const handleShowDetails = (todo: TodoNode) => {
     setSelectedTodo(todo);
-    setTodoDetailsOpen(true);
+    if (!isOpenTodoDetails) setTodoDetailsOpen(true);
   };
 
   const handleCollapsibleChanged = (isOpen: boolean) => {

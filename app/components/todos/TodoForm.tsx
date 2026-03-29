@@ -32,7 +32,7 @@ import {
 } from "~/components/ui/popover";
 
 type Props = {
-  onClose: () => void;
+  onClose?: () => void;
   todo?: TodoNode | null;
   parentTodoId?: string | null;
 };
@@ -71,7 +71,7 @@ function TodoForm({ onClose, todo, parentTodoId }: Props) {
   useEffect(() => {
     if (fetcher.state === "loading" && fetcher.data) {
       if (fetcher.data.success) {
-        onClose();
+        if (onClose !== undefined) onClose();
         setFormData(defaultTask);
       } else {
         console.error("Error:", fetcher.data.error);
@@ -95,6 +95,7 @@ function TodoForm({ onClose, todo, parentTodoId }: Props) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!formData.title.trim()) return;
 
     const submitData: TodoFormPayload = isEditing

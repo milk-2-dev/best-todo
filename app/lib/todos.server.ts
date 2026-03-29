@@ -7,7 +7,7 @@ import type {
   CreateTodoInput,
   UpdateTodoInput,
   TodosStatus,
-  TodoNode
+  TodoNode,
 } from "~/types/todo";
 import type { Todos } from "~/types/appwrite";
 import { determineStatus } from "./utils";
@@ -26,13 +26,13 @@ type DelteTodoResponse = {
   success: boolean;
 };
 
-async function fetchSubtasks(
+export async function fetchSubtasks(
   tablesDB: any,
   userId: string,
   parentId: string,
   depth: number
 ): Promise<TodoNode[]> {
-  if (depth > 4) return []
+  if (depth > 4) return [];
 
   const response = await tablesDB.listRows({
     ...todosTableCredentials,
@@ -41,16 +41,16 @@ async function fetchSubtasks(
       Query.equal("parentId", parentId),
       Query.orderAsc("order"),
     ],
-  })
+  });
 
-  const subtasks = response.rows ?? []
+  const subtasks = response.rows ?? [];
 
   return Promise.all(
     subtasks.map(async (todo: TodoNode) => ({
       ...todo,
       subtasks: await fetchSubtasks(tablesDB, userId, todo.$id, depth + 1),
     }))
-  )
+  );
 }
 
 export async function getTodosTree(
@@ -66,16 +66,16 @@ export async function getTodosTree(
       ...getStatusQueries(status),
       Query.orderAsc("order"),
     ],
-  })
+  });
 
-  const rootTodos = rootResponse.rows ?? []
+  const rootTodos = rootResponse.rows ?? [];
 
   return Promise.all(
     rootTodos.map(async (todo: TodoNode) => ({
       ...todo,
       subtasks: await fetchSubtasks(tablesDB, userId, todo.$id, 1),
     }))
-  )
+  );
 }
 
 function getStatusQueries(status: TodosStatus) {
@@ -87,24 +87,23 @@ function getStatusQueries(status: TodosStatus) {
           Query.lessThan("dueDate", format(new Date(), "PPP")),
           Query.isNull("dueDate"),
         ]),
-      ]
+      ];
     case "today":
       return [
         Query.equal("completed", false),
         Query.equal("dueDate", format(new Date(), "PPP")),
-      ]
+      ];
     case "upcoming":
       return [
         Query.equal("completed", false),
         Query.greaterThan("dueDate", format(new Date(), "PPP")),
-      ]
+      ];
     case "completed":
-      return [Query.equal("completed", true)]
+      return [Query.equal("completed", true)];
     default:
-      return []
+      return [];
   }
 }
-
 
 export async function getUserTodos(
   tablesDB,
@@ -257,16 +256,19 @@ export async function updateTodo(
   }
 }
 
-export async function deleteTodo(tablesDB, todoId: string): Promise<DelteTodoResponse> {
+export async function deleteTodo(
+  tablesDB,
+  todoId: string
+): Promise<DelteTodoResponse> {
   const subtasks = await getSubtasks(tablesDB, todoId);
 
-  if(subtasks) {
+  if (subtasks) {
     console.log(`Deleting ${subtasks.length} subtasks of todo ${todoId}`);
     for (const subtask of subtasks) {
       await deleteTodo(tablesDB, subtask.$id);
     }
   }
-  
+
   try {
     const response = await tablesDB.deleteRow({
       ...todosTableCredentials,

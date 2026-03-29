@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Fragment } from "react";
 import { format } from "date-fns";
 
 import { cn } from "~/lib/utils";
@@ -8,8 +8,7 @@ import type { TodoNode } from "~/types/todo";
 import {
   Calendar as CalendarIcon,
   Flag,
-  Loader2,
-  Trash2,
+  Pencil,
   Plus,
   CheckCircle2,
   Circle,
@@ -44,73 +43,89 @@ export default function TodoDetailsModal({ isOpen, onClose, todo }: Props) {
 
   const isCompleted = useMemo(() => todo?.completed, [todo]);
   const priority = priorityConfig[todo.priority] || priorityConfig.low;
-  const [isFormOpened, setIsFormOpened] = useState(false);
-
-  useEffect(() => {
-    console.log("Todo details modal - received todo:", todo);
-  }, [todo]);
+  const [isSubtaskFormOpened, setIsSubtaskFormOpened] = useState(false);
+  const [isEditFormOpened, setIsEditFormOpened] = useState(false);
 
   const handleToggle = () => {};
-  const onFormClose = () => setIsFormOpened(false);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg lg:max-w-xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold">
-            Todo details
-          </DialogTitle>
+          <DialogTitle className="text-lg font-semibold"></DialogTitle>
         </DialogHeader>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center relative">
-            <button onClick={handleToggle} className="shrink-0 cursor-pointer">
-              {isCompleted ? (
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-              ) : (
-                <Circle className="w-5 h-5 text-slate-300 hover:text-slate-400 transition-colors" />
-              )}
-            </button>
+        {isEditFormOpened ? (
+          <div className="bg-white py-3.5 px-4 border border-slate-200/60 rounded-xl transition-all duration-200">
+            <TodoForm onClose={() => setIsEditFormOpened(false)} todo={todo} />
           </div>
+        ) : (
+          <Fragment>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center relative">
+                <button
+                  onClick={handleToggle}
+                  className="shrink-0 cursor-pointer"
+                >
+                  {isCompleted ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  ) : (
+                    <Circle className="w-5 h-5 text-slate-300 hover:text-slate-400 transition-colors" />
+                  )}
+                </button>
+              </div>
 
-          <div className="flex-1 min-w-0">
-            <p
-              className={cn(
-                "text-sm font-medium text-slate-900",
-                isCompleted && "line-through text-slate-400"
-              )}
-            >
-              {todo.title}
-            </p>
-          </div>
-        </div>
+              <div className="flex-1 min-w-0">
+                <p
+                  className={cn(
+                    "text-sm font-medium text-slate-900",
+                    isCompleted && "line-through text-slate-400"
+                  )}
+                >
+                  {todo.title}
+                </p>
+              </div>
 
-        {todo.description && (
-          <p className="text-sm text-slate-500 mt-0.5 truncate">
-            {todo.description}
-          </p>
+              <Button
+                className="cursor-pointer text-slate-500 hover:bg-white"
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => setIsEditFormOpened(true)}
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+
+            {todo.description && (
+              <p className="text-sm text-slate-500 mt-0.5 truncate">
+                {todo.description}
+              </p>
+            )}
+          </Fragment>
         )}
 
         <div className="space-y-5 mt-1">
           {/* Metadata badges */}
-          <div className="flex flex-wrap gap-2">
-            <span
-              className={cn(
-                "inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full",
-                priority.bg,
-                priority.color
-              )}
-            >
-              <Flag className="w-3 h-3" />
-              {todo.priority} priority
-            </span>
-            {todo.dueDate && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
-                <Calendar className="w-3 h-3" />
-                {format(new Date(todo.dueDate), "MMM d, yyyy")}
+          {!isEditFormOpened && (
+            <div className="flex flex-wrap gap-2">
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full",
+                  priority.bg,
+                  priority.color
+                )}
+              >
+                <Flag className="w-3 h-3" />
+                {todo.priority} priority
               </span>
-            )}
-          </div>
+              {todo.dueDate && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                  <Calendar className="w-3 h-3" />
+                  {format(new Date(todo.dueDate), "MMM d, yyyy")}
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Created date */}
           {/* {task.created_date && (
@@ -136,10 +151,10 @@ export default function TodoDetailsModal({ isOpen, onClose, todo }: Props) {
               </div>
             )}
 
-            {isFormOpened ? (
+            {isSubtaskFormOpened ? (
               <div className="bg-white py-3.5 px-4 border border-slate-200/60 rounded-xl transition-all duration-200">
                 <TodoForm
-                  onClose={onFormClose}
+                  onClose={() => setIsSubtaskFormOpened(false)}
                   parentTodoId={todo.$id}
                   todo={null}
                 />
@@ -149,7 +164,7 @@ export default function TodoDetailsModal({ isOpen, onClose, todo }: Props) {
                 variant="ghost"
                 size="sm"
                 className="cursor-pointer"
-                onClick={() => setIsFormOpened(true)}
+                onClick={() => setIsSubtaskFormOpened(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Subtask

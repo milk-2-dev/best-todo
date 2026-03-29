@@ -5,6 +5,7 @@ import type { Route } from "./+types/_protected.backlog";
 
 import {
   getTodosTree,
+  fetchSubtasks,
   createTodo,
   updateTodo,
   deleteTodo,
@@ -85,7 +86,10 @@ export async function action({ request }: Route.ActionArgs) {
           delete newData.subtasks;
           delete newData.todoId;
 
-          const updatedTodo = await updateTodo(tablesDB, todoId, newData);
+          const updatedTodo = {
+            ...(await updateTodo(tablesDB, todoId, newData)),
+            subtasks: await fetchSubtasks(tablesDB, user.$id, todoId, 1),
+          };
 
           return Response.json({
             success: true,
