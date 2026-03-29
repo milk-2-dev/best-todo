@@ -27,7 +27,7 @@ export default function Sidebar() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = item.href === activeNavItem.href;
-            const count = 5; //taskCounts?.[item.id] || 0;
+            const count = 0; //taskCounts?.[item.id] || 0;
 
             return (
               <Link
