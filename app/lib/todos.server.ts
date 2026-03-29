@@ -87,22 +87,22 @@ function getStatusQueries(status: TodosStatus) {
           Query.lessThan("dueDate", format(new Date(), "PPP")),
           Query.isNull("dueDate"),
         ]),
-        Query.orderAsc("order")
+        Query.orderAsc("order"),
       ];
     case "today":
       return [
         Query.equal("completed", false),
         Query.equal("dueDate", format(new Date(), "PPP")),
-        Query.orderAsc("order")
+        Query.orderAsc("order"),
       ];
     case "upcoming":
       return [
         Query.equal("completed", false),
         Query.greaterThan("dueDate", format(new Date(), "PPP")),
-        Query.orderAsc("dueDate")
+        Query.orderAsc("dueDate"),
       ];
     case "completed":
-      return [Query.equal("completed", true)];
+      return [Query.equal("completed", true), Query.orderAsc("order")];
     default:
       return [];
   }
@@ -135,7 +135,6 @@ export async function getTodosByStatus(
       ...todosTableCredentials,
       queries: [
         Query.equal("userId", userId),
-        Query.equal("completed", false),
         ...getStatusQueries(status),
       ],
     });

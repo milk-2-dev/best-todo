@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router";
 import { Plus } from "lucide-react";
 
 import TodoCard from "./TodoCard";
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export default function TodoList({ tasks, isLoading, activeView }: Props) {
+  const location = useLocation();
   const { setFormData } = useTodoStore();
   const [isNewTodoFormOpen, setIsNewTodoFormOpen] = useState(false);
 
@@ -61,22 +63,24 @@ export default function TodoList({ tasks, isLoading, activeView }: Props) {
         <TodoCard key={task.$id} todo={task} nestingLevel={0} variant="list" />
       ))}
 
-      <div className="py-4 border-t border-slate-200/60">
-        {isNewTodoFormOpen ? (
-          <div className="bg-white py-3.5 px-4 border border-slate-200/60 rounded-xl transition-all duration-200">
-            <TodoForm onClose={handleCloseForm} todo={null} />
-          </div>
-        ) : (
-          <Button
-            variant="ghost"
-            onClick={handleCreateNewTodo}
-            className=" hover:bg-slate-800 hover:text-white"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Task
-          </Button>
-        )}
-      </div>
+      {location.pathname !== "/completed" && (
+        <div className="py-4 border-t border-slate-200/60">
+          {isNewTodoFormOpen ? (
+            <div className="bg-white py-3.5 px-4 border border-slate-200/60 rounded-xl transition-all duration-200">
+              <TodoForm onClose={handleCloseForm} todo={null} />
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={handleCreateNewTodo}
+              className=" hover:bg-slate-800 hover:text-white"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Task
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -28,8 +28,8 @@ export default function TodoPage() {
   }, [fetcher.data]);
 
   return (
-    <div className="p-8">
-      <div className="flex-1 overflow-auto p-4 lg:p-8">
+    <div className="p-8 h-full">
+      <div className="flex-1 h-full overflow-auto p-4 lg:p-8">
         {viewMode === "list" ? (
           <TodoList tasks={todos} isLoading={isLoading} activeView={viewMode} />
         ) : (
