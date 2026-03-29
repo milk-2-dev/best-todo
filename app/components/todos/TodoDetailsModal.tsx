@@ -55,10 +55,6 @@ export default function TodoDetailsModal({ isOpen, onClose, todo }: Props) {
 
   useEffect(() => {
     if (fetcher.data?.success && selectedTodo) {
-      console.log(
-        "Updating selected todo with latest data from server:",
-        fetcher.data.todo
-      );
       setSelectedTodo(fetcher.data.todo);
     }
   }, [fetcher.data]);
