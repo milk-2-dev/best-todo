@@ -1,4 +1,4 @@
-import React from "react";
+import { useLocation } from "react-router";
 import { Inbox, Sun, Calendar, CheckCircle2, Plus } from "lucide-react";
 import { Button } from "~/components/ui/button";
 
@@ -26,7 +26,15 @@ const emptyConfig = {
 };
 
 export default function EmptyState({ view, onCreateTask }) {
-  const config = emptyConfig[view] || emptyConfig.backlog;
+  const location = useLocation();
+  const defaults = {
+    "/backlog": "backlog",
+    "/today": "today",
+    "/upcoming": "upcoming",
+    "/completed": "completed",
+  };
+  const config =
+    emptyConfig[defaults[location.pathname]] || emptyConfig.backlog;
   const Icon = config.icon;
 
   return (
