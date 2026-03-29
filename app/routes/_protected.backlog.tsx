@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { type LoaderFunctionArgs } from "react-router";
 
 import type { Route } from "./+types/_protected.backlog";
 
 import {
-  getTodosByStatus,
+  getTodosTree,
+  fetchSubtasks,
   createTodo,
   updateTodo,
   deleteTodo,
@@ -16,6 +18,8 @@ import {
   requireUser,
 } from "~/utils/session.server";
 import { createSessionClient } from "~/lib/appwrite.server";
+
+import { useTodoStore } from "~/store/todoStore";
 
 import TodoPage from "../components/todos/TodoPage";
 
@@ -32,7 +36,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const user = await getUserFromSession(request);
 
     const { tablesDB } = createSessionClient(sessionToken);
-    const todos = await getTodosByStatus(tablesDB, user.$id, "backlog");
+    const todos = await getTodosTree(tablesDB, user.$id, "backlog");
 
     return Response.json({ todos, user });
   } catch (error) {
@@ -40,7 +44,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 }
 
-export async function action({ request }: Route.ActionArgs): Promise<Response> {
+export async function action({ request }: Route.ActionArgs) {
   const user = await requireUser(request);
 
   try {
@@ -82,7 +86,10 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
           delete newData.subtasks;
           delete newData.todoId;
 
-          const updatedTodo = await updateTodo(tablesDB, todoId, newData);
+          const updatedTodo = {
+            ...(await updateTodo(tablesDB, todoId, newData)),
+            subtasks: await fetchSubtasks(tablesDB, user.$id, todoId, 1),
+          };
 
           return Response.json({
             success: true,
@@ -102,9 +109,14 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
             );
           }
 
-          await toggleTodoComplete(tablesDB, todoId, data.completed);
+          const updatedTodo = {
+            ...(await toggleTodoComplete(tablesDB, todoId, data.completed)),
+            subtasks: await fetchSubtasks(tablesDB, user.$id, todoId, 1),
+          };
+
           return Response.json({
             success: true,
+            todo: updatedTodo,
             message: "Todo complete status changed successfully",
           });
         }
@@ -151,6 +163,12 @@ export async function action({ request }: Route.ActionArgs): Promise<Response> {
 
 export default function Backlog({ loaderData }: Route.ComponentProps) {
   const { todos } = loaderData;
+  const { setTodos, setIsLoading } = useTodoStore();
 
-  return <TodoPage todos={todos} />;
+  useEffect(() => {
+    setTodos(todos);
+    setIsLoading(false);
+  }, [todos]);
+
+  return <TodoPage />;
 }

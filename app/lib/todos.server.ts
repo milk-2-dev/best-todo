@@ -7,11 +7,11 @@ import type {
   CreateTodoInput,
   UpdateTodoInput,
   TodosStatus,
+  TodoNode,
 } from "~/types/todo";
 import type { Todos } from "~/types/appwrite";
 import { determineStatus } from "./utils";
 
-// @klimov: try this construction
 const todosTableCredentials = {
   databaseId: DATABASE_ID,
   tableId: TODOS_COLLECTION_ID,
@@ -26,6 +26,84 @@ type DelteTodoResponse = {
   success: boolean;
 };
 
+export async function fetchSubtasks(
+  tablesDB: any,
+  userId: string,
+  parentId: string,
+  depth: number
+): Promise<TodoNode[]> {
+  if (depth > 4) return [];
+
+  const response = await tablesDB.listRows({
+    ...todosTableCredentials,
+    queries: [
+      Query.equal("userId", userId),
+      Query.equal("parentId", parentId),
+      Query.orderAsc("order"),
+    ],
+  });
+
+  const subtasks = response.rows ?? [];
+
+  return Promise.all(
+    subtasks.map(async (todo: TodoNode) => ({
+      ...todo,
+      subtasks: await fetchSubtasks(tablesDB, userId, todo.$id, depth + 1),
+    }))
+  );
+}
+
+export async function getTodosTree(
+  tablesDB: any,
+  userId: string,
+  status: TodosStatus
+): Promise<TodoNode[]> {
+  const rootResponse = await tablesDB.listRows({
+    ...todosTableCredentials,
+    queries: [
+      Query.equal("userId", userId),
+      Query.isNull("parentId"),
+      ...getStatusQueries(status),
+      Query.orderAsc("order"),
+    ],
+  });
+
+  const rootTodos = rootResponse.rows ?? [];
+
+  return Promise.all(
+    rootTodos.map(async (todo: TodoNode) => ({
+      ...todo,
+      subtasks: await fetchSubtasks(tablesDB, userId, todo.$id, 1),
+    }))
+  );
+}
+
+function getStatusQueries(status: TodosStatus) {
+  switch (status) {
+    case "backlog":
+      return [
+        Query.equal("completed", false),
+        Query.or([
+          Query.lessThan("dueDate", format(new Date(), "PPP")),
+          Query.isNull("dueDate"),
+        ]),
+      ];
+    case "today":
+      return [
+        Query.equal("completed", false),
+        Query.equal("dueDate", format(new Date(), "PPP")),
+      ];
+    case "upcoming":
+      return [
+        Query.equal("completed", false),
+        Query.greaterThan("dueDate", format(new Date(), "PPP")),
+      ];
+    case "completed":
+      return [Query.equal("completed", true)];
+    default:
+      return [];
+  }
+}
 
 export async function getUserTodos(
   tablesDB,
@@ -178,16 +256,19 @@ export async function updateTodo(
   }
 }
 
-export async function deleteTodo(tablesDB, todoId: string): Promise<DelteTodoResponse> {
+export async function deleteTodo(
+  tablesDB,
+  todoId: string
+): Promise<DelteTodoResponse> {
   const subtasks = await getSubtasks(tablesDB, todoId);
 
-  if(subtasks) {
+  if (subtasks) {
     console.log(`Deleting ${subtasks.length} subtasks of todo ${todoId}`);
     for (const subtask of subtasks) {
       await deleteTodo(tablesDB, subtask.$id);
     }
   }
-  
+
   try {
     const response = await tablesDB.deleteRow({
       ...todosTableCredentials,

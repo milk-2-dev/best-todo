@@ -22,6 +22,7 @@ export interface TaskFormData {
   description: string | null;
   completed: boolean;
   priority: Priority;
+  parentId: string | null;
   dueDate: string | null;
   subtasks: TodoNode[];
 }

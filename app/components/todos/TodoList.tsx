@@ -1,32 +1,37 @@
+import { useState } from "react";
 import { Plus } from "lucide-react";
 
 import TodoCard from "./TodoCard";
 import EmptyState from "./EmptyState";
 
+import type { ViewMode, TodoNode } from "~/types/todo";
+
+import { useTodoStore } from "~/store/todoStore";
+
+import TodoForm from "./TodoForm";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Button } from "~/components/ui/button";
-
-import type { ViewMode, TodoNode } from "~/types/todo";
 
 type Props = {
   tasks: TodoNode[];
   isLoading: boolean;
-  onToggleComplete: (id: string) => void;
-  onEdit: (task: any) => void;
-  onDelete: (id: string) => void;
-  onCreateTask: () => void;
   activeView: ViewMode;
 };
 
-export default function TodoList({
-  tasks,
-  isLoading,
-  onToggleComplete,
-  onEdit,
-  onDelete,
-  onCreateTask,
-  activeView,
-}: Props) {
+export default function TodoList({ tasks, isLoading, activeView }: Props) {
+  const { setFormData } = useTodoStore();
+  const [isNewTodoFormOpen, setIsNewTodoFormOpen] = useState(false);
+
+  const handleCreateNewTodo = () => {
+    setIsNewTodoFormOpen(true);
+    setFormData(null);
+  };
+
+  const handleCloseForm = () => {
+    setIsNewTodoFormOpen(false);
+    setFormData(null);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -47,32 +52,30 @@ export default function TodoList({
   }
 
   if (!tasks || tasks.length === 0) {
-    return <EmptyState view={activeView} onCreateTask={onCreateTask} />;
+    return <EmptyState view={activeView} onCreateTask={handleCreateNewTodo} />;
   }
 
   return (
     <div className="space-y-2">
       {tasks.map((task) => (
-        <TodoCard
-          key={task.$id}
-          task={task}
-          nestingLevel={0}
-          onToggleComplete={onToggleComplete}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          variant="list"
-        />
+        <TodoCard key={task.$id} todo={task} nestingLevel={0} variant="list" />
       ))}
 
       <div className="py-4 border-t border-slate-200/60">
-        <Button
-          variant="ghost"
-          onClick={onCreateTask}
-          className=" hover:bg-slate-800 hover:text-white"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Task
-        </Button>
+        {isNewTodoFormOpen ? (
+          <div className="bg-white py-3.5 px-4 border border-slate-200/60 rounded-xl transition-all duration-200">
+            <TodoForm onClose={handleCloseForm} todo={null} />
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            onClick={handleCreateNewTodo}
+            className=" hover:bg-slate-800 hover:text-white"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Task
+          </Button>
+        )}
       </div>
     </div>
   );

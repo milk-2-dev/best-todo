@@ -157,20 +157,20 @@
 
 ### ⏳ Phase 8: Task Details Modal (0/3)
 
-- [ ] **Task 19**: Todo Details Modal - UI
-  - ⏳ Modal component
-  - ⏳ Full task info display
-  - ⏳ Subtasks list
+- [✅] **Task 19**: Todo Details Modal - UI
+  - ✅ Modal component
+  - ✅ Full task info display
+  - ✅ Subtasks list
 
-- [ ] **Task 20**: Todo Details Modal - Edit
-  - ⏳ Inline editing
-  - ⏳ Save changes
-  - ⏳ Modal controls
+- [✅] **Task 20**: Todo Details Modal - Edit
+  - ✅ Inline editing
+  - ✅ Save changes
+  - ✅ Modal controls
 
-- [ ] **Task 21**: Subtasks Management
-  - ⏳ Add subtask form
-  - ⏳ Recursive rendering
-  - ⏳ CRUD for subtasks
+- [✅] **Task 21**: Subtasks Management
+  - ✅ Add subtask form
+  - ✅ Recursive rendering
+  - ✅ CRUD for subtasks
 
 ### ⏳ Phase 9: Smart Categorization (0/1)
 
