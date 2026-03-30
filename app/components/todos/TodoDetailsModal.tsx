@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, Fragment } from "react";
-import { useFetcher } from "react-router";
+import { useFetcher, useLocation } from "react-router";
 import { format } from "date-fns";
 
 import { cn } from "~/lib/utils";
@@ -44,6 +44,7 @@ const priorityConfig = {
 export default function TodoDetailsModal({ isOpen, onClose, todo }: Props) {
   if (!todo) return null;
 
+  const location = useLocation();
   const selectedTodo = useTodoStore((s) => s.selectedTodo);
   const setSelectedTodo = useTodoStore((s) => s.setSelectedTodo);
   const toggleTodo = useTodoStore((s) => s.toggleTodo);
@@ -115,14 +116,16 @@ export default function TodoDetailsModal({ isOpen, onClose, todo }: Props) {
                 </p>
               </div>
 
-              <Button
-                className="cursor-pointer text-slate-500 hover:bg-white"
-                variant="ghost"
-                size="icon-xs"
-                onClick={() => setIsEditFormOpened(true)}
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </Button>
+              {location.pathname !== "/completed" && (
+                <Button
+                  className="cursor-pointer text-slate-500 hover:bg-white"
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => setIsEditFormOpened(true)}
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </Button>
+              )}
             </div>
 
             {todo.description && (
@@ -179,25 +182,28 @@ export default function TodoDetailsModal({ isOpen, onClose, todo }: Props) {
                 ))}
               </div>
             )}
-
-            {isSubtaskFormOpened ? (
-              <div className="bg-white py-3.5 px-4 border border-slate-200/60 rounded-xl transition-all duration-200">
-                <TodoForm
-                  onClose={() => setIsSubtaskFormOpened(false)}
-                  parentTodoId={todo.$id}
-                  todo={null}
-                />
-              </div>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="cursor-pointer"
-                onClick={() => setIsSubtaskFormOpened(true)}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Subtask
-              </Button>
+            {location.pathname !== "/completed" && (
+              <Fragment>
+                {isSubtaskFormOpened ? (
+                  <div className="bg-white py-3.5 px-4 border border-slate-200/60 rounded-xl transition-all duration-200">
+                    <TodoForm
+                      onClose={() => setIsSubtaskFormOpened(false)}
+                      parentTodoId={todo.$id}
+                      todo={null}
+                    />
+                  </div>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="cursor-pointer"
+                    onClick={() => setIsSubtaskFormOpened(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Subtask
+                  </Button>
+                )}
+              </Fragment>
             )}
           </div>
         </div>

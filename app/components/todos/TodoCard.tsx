@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useFetcher } from "react-router";
+import { useFetcher, useLocation } from "react-router";
 import {
   Calendar,
   Flag,
@@ -65,6 +65,7 @@ export default function TodoCard({
   nestingLevel = DEFAULT_NESTING_LEVEL,
   variant = "list",
 }: TodoCardProps) {
+  const location = useLocation();
   const isOpenTodoDetails = useTodoStore((s) => s.isOpenTodoDetails);
   const formData = useTodoStore((s) => s.formData);
   const setTodoDetailsOpen = useTodoStore((s) => s.setTodoDetailsOpen);
@@ -288,14 +289,16 @@ export default function TodoCard({
                 <Flag className={cn("w-4 h-4", priority.color)} />
               )}
 
-              <Button
-                className="cursor-pointer text-slate-500 hover:bg-white"
-                variant="ghost"
-                size="icon-xs"
-                onClick={() => handleEditTodo(todo)}
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </Button>
+              {location.pathname !== "/completed" && (
+                <Button
+                  className="cursor-pointer text-slate-500 hover:bg-white"
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={() => handleEditTodo(todo)}
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </Button>
+              )}
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
